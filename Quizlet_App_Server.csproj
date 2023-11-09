@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\Helper\" />
-    <Folder Include="Services\" />
+    <Folder Include="Src\Controllers\Helper\" />
+    <Folder Include="Src\Services\" />
   </ItemGroup>
 
 </Project>

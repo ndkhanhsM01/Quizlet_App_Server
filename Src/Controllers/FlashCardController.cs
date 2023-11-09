@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
+using Quizlet_App_Server.DataSettings;
+using Quizlet_App_Server.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -6,8 +9,13 @@ namespace Quizlet_App_Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FlashCardController : ControllerBase
+    public class FlashCardController : ControllerExtend<FlashCard>
     {
+        public FlashCardController(IStoreDatabaseSetting setting, IMongoClient mongoClient) 
+            : base(setting, mongoClient)
+        {
+        }
+
         // GET: api/<FlashCardController>
         [HttpGet]
         public IEnumerable<string> Get()

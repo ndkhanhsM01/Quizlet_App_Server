@@ -13,11 +13,9 @@ namespace Quizlet_App_Server.Controllers
     [ApiController]
     public class UserController : ControllerExtend<User>
     {
-        private readonly IMongoClient client;
         public UserController(UserStoreDatabaseSetting setting, IMongoClient mongoClient) 
             : base(setting, mongoClient)
         {
-            this.client = mongoClient;
         }
         [ApiExplorerSettings(IgnoreApi = true)]
         public int GetNextID()
