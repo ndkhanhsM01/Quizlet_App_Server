@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Amazon.Runtime.Internal;
+using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
@@ -57,27 +59,76 @@ namespace Quizlet_App_Server.Controllers
         }
 
         // GET api/<UserController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet]
+        public ActionResult<User> Login([FromQuery] UserLogin loginRequest)
         {
-            return "value";
+            // find user
+            var filter = Builders<User>.Filter.Eq(x => x.LoginName, loginRequest.LoginName);
+            var existingUser = collection.Find(filter).FirstOrDefault();
+
+            // login name incorrect
+            if(existingUser == null)
+            {
+                return NotFound("Login name not found");
+            }
+
+            // password incorrect
+            if(!existingUser.LoginPassword.Equals(loginRequest.LoginPassword))
+            {
+                return BadRequest("Password incorrect");
+            }
+
+            return Ok(existingUser);
         }
 
         // POST api/<UserController>
         [HttpPost]
-        public ActionResult<User> CreateNewUser([FromBody] UserRequest request)
+        public ActionResult<User> SignUp([FromBody] UserSignUp request)
         {
             User newUser = new User() { LoginName = request.LoginName, LoginPassword = request.LoginPassword };
+            
+            // validate user
+
+            var filter = Builders<User>.Filter.Eq(x => x.LoginName, request.LoginName);
+            var existingDocument = collection.Find(filter).FirstOrDefault();
+
+            if (existingDocument != null)
+            {
+                return BadRequest("Username already exists");
+            }
+
+            // insert new user's information
             newUser.UserId = this.GetNextID();
             collection.InsertOne(newUser);
 
-            return CreatedAtAction(nameof(Get), new { id = newUser.Id }, newUser);
+            return Ok(newUser);
         }
 
         // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{userId}")]
+        public ActionResult<User> ChangePassword(int userId, [FromBody] ChangePasswordRequest request)
         {
+            // validate user
+            var filter = Builders<User>.Filter.Eq(x => x.UserId, userId);
+            var existingUser = collection.Find(filter).FirstOrDefault();
+
+            if (existingUser == null)
+            {
+                return NotFound("User ID not found");
+            }
+            else if (!existingUser.LoginPassword.Equals(request.OldPassword))
+            {
+                return BadRequest("Old password incorrect");
+            }
+            else if (existingUser.LoginPassword.Equals(request.NewPassword))
+            {
+                return BadRequest("New password is same the current password");
+            }
+
+            var update = Builders<User>.Update.Set("login_password", request.NewPassword);
+            var result = collection.UpdateOne(filter, update);
+
+            return Ok("Change password successful");
         }
 
         // DELETE api/<UserController>/5

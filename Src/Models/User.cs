@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.Mvc.ViewEngines;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Quizlet_App_Server.Utility;
 
@@ -21,9 +22,23 @@ namespace Quizlet_App_Server.Models
     }
 
     [System.Serializable]
-    public class UserRequest
+    public class UserSignUp
     {
         public string LoginName { get; set; } = string.Empty;
         public string LoginPassword { get; set; } = string.Empty;
+    }
+
+    [System.Serializable]
+    public class UserLogin
+    {
+        [BsonElement("login_name")] public string LoginName { get; set; } = string.Empty;
+        [BsonElement("login_password")] public string LoginPassword { get; set; } = string.Empty;
+    }
+
+    [System.Serializable]
+    public class ChangePasswordRequest
+    {
+        [BsonElement("old_password")] public string OldPassword { get; set; } = string.Empty;
+        [BsonElement("new_password")] public string NewPassword { get; set; } = string.Empty;
     }
 }
