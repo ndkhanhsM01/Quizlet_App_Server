@@ -15,7 +15,6 @@
   <ItemGroup>
     <Folder Include="Src\Controllers\Helper\" />
     <Folder Include="Src\Models\Validate\" />
-    <Folder Include="Src\Services\" />
   </ItemGroup>
 
 </Project>

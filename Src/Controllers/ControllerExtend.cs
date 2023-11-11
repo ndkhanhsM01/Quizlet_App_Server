@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
+using Quizlet_App_Server.Services;
 
 namespace Quizlet_App_Server.Controllers
 {

@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Models.Helper;
+using Quizlet_App_Server.Services;
 using Quizlet_App_Server.Utility;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,42 +16,13 @@ namespace Quizlet_App_Server.Controllers
     [ApiController]
     public class UserController : ControllerExtend<User>
     {
+        private readonly UserService service;
         public UserController(UserStoreDatabaseSetting setting, IMongoClient mongoClient) 
             : base(setting, mongoClient)
         {
+            service = new(mongoClient);
         }
         [ApiExplorerSettings(IgnoreApi = true)]
-        public int GetNextID()
-        {
-            string id = "user_sequence";
-            var database = client.GetDatabase(VariableConfig.DatabaseName);
-            var sequenceCollection = database.GetCollection<UserSequence>(VariableConfig.Collection_UserSequence);
-
-            var filter = Builders<UserSequence>.Filter.Eq(x => x.Id, id);
-            var existingDocument = sequenceCollection.Find(filter).FirstOrDefault();
-
-            if (existingDocument == null)
-            {
-                var defaultSequence = new UserSequence
-                {
-                    Id = id,
-                    Value = 10000
-                };
-
-                sequenceCollection.InsertOne(defaultSequence);
-                return defaultSequence.Value;
-            }
-
-            var update = Builders<UserSequence>.Update.Inc(x => x.Value, 1);
-            var options = new FindOneAndUpdateOptions<UserSequence>
-            {
-                IsUpsert = true,
-                ReturnDocument = ReturnDocument.After
-            };
-
-            var result = sequenceCollection.FindOneAndUpdate<UserSequence>(filter, update, options);
-            return result.Value;
-        }
         // GET: api/<UserController>
         [HttpGet]
         public IEnumerable<string> Get()
@@ -63,8 +35,7 @@ namespace Quizlet_App_Server.Controllers
         public ActionResult<User> Login([FromQuery] UserLogin loginRequest)
         {
             // find user
-            var filter = Builders<User>.Filter.Eq(x => x.LoginName, loginRequest.LoginName);
-            var existingUser = collection.Find(filter).FirstOrDefault();
+            var existingUser = service.FindByLoginName(loginRequest.LoginName);
 
             // login name incorrect
             if(existingUser == null)
@@ -88,9 +59,7 @@ namespace Quizlet_App_Server.Controllers
             User newUser = new User() { LoginName = request.LoginName, LoginPassword = request.LoginPassword };
             
             // validate user
-
-            var filter = Builders<User>.Filter.Eq(x => x.LoginName, request.LoginName);
-            var existingDocument = collection.Find(filter).FirstOrDefault();
+            var existingDocument = service.FindByLoginName(request.LoginName); 
 
             if (existingDocument != null)
             {
@@ -98,7 +67,7 @@ namespace Quizlet_App_Server.Controllers
             }
 
             // insert new user's information
-            newUser.UserId = this.GetNextID();
+            newUser.UserId = service.GetNextID();
             collection.InsertOne(newUser);
 
             return Ok(newUser);
@@ -109,8 +78,7 @@ namespace Quizlet_App_Server.Controllers
         public ActionResult<User> ChangePassword(int userId, [FromBody] ChangePasswordRequest request)
         {
             // validate user
-            var filter = Builders<User>.Filter.Eq(x => x.UserId, userId);
-            var existingUser = collection.Find(filter).FirstOrDefault();
+            var existingUser = service.FindByUserId(userId);
 
             if (existingUser == null)
             {
@@ -126,6 +94,7 @@ namespace Quizlet_App_Server.Controllers
             }
 
             var update = Builders<User>.Update.Set("login_password", request.NewPassword);
+            var filter = Builders<User>.Filter.Eq(x => x.UserId, userId);
             var result = collection.UpdateOne(filter, update);
 
             return Ok("Change password successful");

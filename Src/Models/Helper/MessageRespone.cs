@@ -2,9 +2,18 @@
 
 namespace Quizlet_App_Server.Models.Helper
 {
-    public class MessageRespone
+    [System.Serializable]
+    public class MessageRespone<T>
     {
-        public bool success;
+        public Status status;
         public string message = string.Empty;
+        public T data;
+    }
+
+    public enum Status
+    {
+        OK = 200,
+        NOT_FOUND = 404,
+        BAD_REQUEST = 400
     }
 }

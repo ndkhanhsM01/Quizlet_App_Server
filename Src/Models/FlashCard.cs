@@ -13,7 +13,6 @@ namespace Quizlet_App_Server.Models
 
         [BsonElement("term")] public string Term { get; set; } = string.Empty;
         [BsonElement("definition")] public string Definition { get; set; } = string.Empty;
-        [BsonElement("content")] public string Content { get; set; } = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
     }
 }
