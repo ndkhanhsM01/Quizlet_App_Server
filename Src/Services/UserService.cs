@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Models.Helper;
 using Quizlet_App_Server.Utility;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Quizlet_App_Server.Services
 {
@@ -10,12 +14,14 @@ namespace Quizlet_App_Server.Services
     {
         protected readonly IMongoCollection<User> collection;
         protected readonly IMongoClient client;
-        public UserService(IMongoClient mongoClient)
+        private readonly IConfiguration config;
+        public UserService(IMongoClient mongoClient, IConfiguration config)
         {
             var database = mongoClient.GetDatabase(VariableConfig.DatabaseName);
             collection = database.GetCollection<User>(VariableConfig.Collection_Users);
 
             this.client = mongoClient;
+            this.config = config;
         }
 
         public int GetNextID()
@@ -62,6 +68,25 @@ namespace Quizlet_App_Server.Services
             var existingUser = collection.Find(filter).FirstOrDefault();
 
             return existingUser;
+        }
+
+        // To generate token
+        public string GenerateToken(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.LoginName),
+            };
+            var token = new JwtSecurityToken(config["Jwt:Issuer"],
+                config["Jwt:Audience"],
+                claims,
+                expires: DateTime.Now.AddMinutes(15),
+                signingCredentials: credentials);
+
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

@@ -17,10 +17,10 @@ namespace Quizlet_App_Server.Controllers
     public class UserController : ControllerExtend<User>
     {
         private readonly UserService service;
-        public UserController(UserStoreDatabaseSetting setting, IMongoClient mongoClient) 
+        public UserController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config) 
             : base(setting, mongoClient)
         {
-            service = new(mongoClient);
+            service = new(mongoClient, config);
         }
         [ApiExplorerSettings(IgnoreApi = true)]
         // GET: api/<UserController>
@@ -31,8 +31,8 @@ namespace Quizlet_App_Server.Controllers
         }
 
         // GET api/<UserController>/5
-        [HttpGet]
-        public ActionResult<User> Login([FromQuery] UserLogin loginRequest)
+        [HttpPost]
+        public ActionResult<User> Login([FromBody] UserLogin loginRequest)
         {
             // find user
             var existingUser = service.FindByLoginName(loginRequest.LoginName);
@@ -49,6 +49,7 @@ namespace Quizlet_App_Server.Controllers
                 return BadRequest("Password incorrect");
             }
 
+            //string token = service.GenerateToken(existingUser);
             return Ok(existingUser);
         }
 
