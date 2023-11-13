@@ -13,6 +13,7 @@ namespace Quizlet_App_Server.Models
 
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
-        [BsonElement("cards")] public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
+        //[BsonElement("cards")] public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
+        [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
     }
 }

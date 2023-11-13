@@ -12,6 +12,6 @@ namespace Quizlet_App_Server.Models
         public string Id { get; set; } = string.Empty;
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
-        [BsonElement("study_sets")] public List<StudySet> StudySets { get; set; } = new List<StudySet>();
+        //[BsonElement("study_sets")] public List<StudySet> StudySets { get; set; } = new List<StudySet>();
     }
 }

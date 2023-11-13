@@ -47,7 +47,6 @@ namespace Quizlet_App_Server.Controllers
             if(setOwner != null)
             {
                 newCard.IdSetOwner = setOwner.Id;
-                setOwner.Cards.Add(newCard);
             }
             else
             {
@@ -72,12 +71,7 @@ namespace Quizlet_App_Server.Controllers
             FlashCard cardRequire = existingUser.Documents.FlashCards.Find(x => x.Id == cardId);
             if (cardRequire == null)
             {
-                for (int i = 0; i < existingUser.Documents.StudySets.Count; i++)
-                {
-                    var set = existingUser.Documents.StudySets[i];
-                    cardRequire = set.Cards.Find(x => x.Id == cardId);
-                    if (cardRequire != null) break;
-                }
+                return NotFound("Card require not found");
             }
             // update card
             cardRequire.Term = newInfo.Term;
@@ -105,19 +99,7 @@ namespace Quizlet_App_Server.Controllers
             FlashCard cardRequire = existingUser.Documents.FlashCards.Find(x => x.Id == cardId);
             if(cardRequire == null)
             {
-                int? indexSet = null;
-                for(int i=0; i < existingUser.Documents.StudySets.Count; i++)
-                {
-                    var set = existingUser.Documents.StudySets[i];
-                    cardRequire = set.Cards.Find(x => x.Id == cardId);
-                    if (cardRequire != null)
-                    {
-                        indexSet = i;
-                        break;
-                    }
-                }
-                if(indexSet != null) 
-                    existingUser.Documents.StudySets[(int) indexSet].Cards.Remove(cardRequire);
+                return NotFound("Card not found");
             }
             else
             {
