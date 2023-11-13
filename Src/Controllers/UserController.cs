@@ -75,11 +75,11 @@ namespace Quizlet_App_Server.Controllers
         }
 
         // PUT api/<UserController>/5
-        [HttpPut("{userId}")]
-        public ActionResult<User> ChangePassword(int userId, [FromBody] ChangePasswordRequest request)
+        [HttpPut("{id}")]
+        public ActionResult<User> ChangePassword(string id, [FromBody] ChangePasswordRequest request)
         {
             // validate user
-            var existingUser = service.FindByUserId(userId);
+            var existingUser = service.FindById(id);
 
             if (existingUser == null)
             {
@@ -95,7 +95,7 @@ namespace Quizlet_App_Server.Controllers
             }
 
             var update = Builders<User>.Update.Set("login_password", request.NewPassword);
-            var filter = Builders<User>.Filter.Eq(x => x.UserId, userId);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, id);
             var result = collection.UpdateOne(filter, update);
 
             return Ok("Change password successful");

@@ -62,6 +62,13 @@ namespace Quizlet_App_Server.Services
 
             return existingUser;
         }
+        public User FindById(string id)
+        {
+            var filter = Builders<User>.Filter.Eq(x => x.Id, id);
+            var existingUser = collection.Find(filter).FirstOrDefault();
+
+            return existingUser;
+        }
         public User FindByLoginName(string loginName)
         {
             var filter = Builders<User>.Filter.Eq(x => x.LoginName, loginName);
