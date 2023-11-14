@@ -55,9 +55,9 @@ namespace Quizlet_App_Server.Services
             var result = sequenceCollection.FindOneAndUpdate<UserSequence>(filter, update, options);
             return result.Value;
         }
-        public User FindByUserId(int userId)
+        public User FindBySeqId(int seqId)
         {
-            var filter = Builders<User>.Filter.Eq(x => x.UserId, userId);
+            var filter = Builders<User>.Filter.Eq(x => x.SeqId, seqId);
             var existingUser = collection.Find(filter).FirstOrDefault();
 
             return existingUser;

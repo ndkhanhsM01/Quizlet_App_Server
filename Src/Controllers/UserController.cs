@@ -68,7 +68,7 @@ namespace Quizlet_App_Server.Controllers
             }
 
             // insert new user's information
-            newUser.UserId = service.GetNextID();
+            newUser.SeqId = service.GetNextID();
             collection.InsertOne(newUser);
 
             return Ok(newUser);
