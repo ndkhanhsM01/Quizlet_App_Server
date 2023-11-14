@@ -43,8 +43,8 @@ namespace Quizlet_App_Server.Controllers
             return new ActionResult<Documents>(userExisting.Documents);
         }
 
-        [HttpPut("userId")]
-        public ActionResult<Documents> Update(string userId, [FromHeader] string setId, [FromBody] StudySetDTO req)
+        [HttpPut]
+        public ActionResult<Documents> Update(string userId, string setId, [FromBody] StudySetDTO req)
         {
             User userExisting = userService.FindById(userId);
             if (userExisting == null)
@@ -76,8 +76,8 @@ namespace Quizlet_App_Server.Controllers
                 return BadRequest("Set's Id inconrrect");
             }
         }
-        [HttpPut("userId")]
-        public ActionResult<Documents> Delete(string userId, [FromHeader] string setId)
+        [HttpDelete]
+        public ActionResult<Documents> Delete(string userId, string setId)
         {
             User userExisting = userService.FindById(userId);
             if (userExisting == null)
