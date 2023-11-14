@@ -9,11 +9,19 @@ namespace Quizlet_App_Server.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = string.Empty;
+        public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         //[BsonElement("cards")] public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
+        [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
+
+    }
+
+    [System.Serializable]
+    public class StudySetDTO
+    {
+        [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
     }
 }

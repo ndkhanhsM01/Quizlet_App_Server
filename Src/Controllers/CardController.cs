@@ -21,11 +21,7 @@ namespace Quizlet_App_Server.Controllers
         [AllowAnonymous]
         private UpdateResult UpdateDocumentsUser(User existingUser)
         {
-            var update = Builders<User>.Update.Set("documents", existingUser.Documents);
-            var filter = Builders<User>.Filter.Eq(x => x.Id, existingUser.Id);
-            var result = collection.UpdateOne(filter, update);
-
-            return result;
+            return userService.UpdateDocumentsUser(existingUser);
         }
         [HttpPost("userId")]
         public ActionResult<Documents> Create(string userId, [FromBody] FlashCardDTO cardReq)
@@ -50,8 +46,10 @@ namespace Quizlet_App_Server.Controllers
             }
             else
             {
-                existingUser.Documents.FlashCards.Add(newCard);
+                newCard.IdSetOwner = string.Empty;
             }
+
+            existingUser.Documents.FlashCards.Add(newCard);
             var result = UpdateDocumentsUser(existingUser);
 
             return new ActionResult<Documents>(existingUser.Documents);

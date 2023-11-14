@@ -76,7 +76,50 @@ namespace Quizlet_App_Server.Services
 
             return existingUser;
         }
+        public UpdateResult UpdateDocumentsUser(User existingUser)
+        {
+            var update = Builders<User>.Update.Set("documents", existingUser.Documents);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, existingUser.Id);
+            var result = collection.UpdateOne(filter, update);
 
+            return result;
+        }
+        public List<FlashCard> FindAllCardsSameSet(string idUser, string idSet)
+        {
+            User user = FindById(idUser);
+            if(user == null)
+            {
+                return null;
+            }
+
+            List<FlashCard> allCards = user.Documents.FlashCards;
+            List<FlashCard> listRespone = new List<FlashCard>();
+            foreach(var card in allCards)
+            {
+                if (card.IdSetOwner.Equals(idSet))
+                    listRespone.Add(card);
+            }
+
+            return listRespone;
+        }
+        public List<StudySet> FindAllSetsSameFolder(string idUser, string idFolder)
+        {
+            User user = FindById(idUser);
+            if (user == null)
+            {
+                return null;
+            }
+
+            List<StudySet> allSets = user.Documents.StudySets;
+            List<StudySet> listRespone = new List<StudySet>();
+            foreach (var set in allSets)
+            {
+                if (set.IdFolderOwner.Equals(idFolder))
+                    listRespone.Add(set);
+            }
+
+            return listRespone;
+        }
         // To generate token
         public string GenerateToken(User user)
         {
