@@ -43,7 +43,7 @@ namespace Quizlet_App_Server.Controllers
             return new ActionResult<Documents>(userExisting.Documents);
         }
 
-        [HttpPost("userId")]
+        [HttpPut("userId")]
         public ActionResult<Documents> Update(string userId, [FromHeader] string setId, [FromBody] StudySetDTO req)
         {
             User userExisting = userService.FindById(userId);
@@ -76,7 +76,7 @@ namespace Quizlet_App_Server.Controllers
                 return BadRequest("Set's Id inconrrect");
             }
         }
-        [HttpPost("userId")]
+        [HttpPut("userId")]
         public ActionResult<Documents> Delete(string userId, [FromHeader] string setId)
         {
             User userExisting = userService.FindById(userId);
