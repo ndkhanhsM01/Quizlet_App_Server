@@ -75,7 +75,7 @@ namespace Quizlet_App_Server.Controllers
         }
 
         // PUT api/<UserController>/5
-        [HttpPut("{id}")]
+        [HttpPut]
         public ActionResult<User> ChangePassword(string id, [FromBody] ChangePasswordRequest request)
         {
             // validate user
@@ -99,12 +99,6 @@ namespace Quizlet_App_Server.Controllers
             var result = collection.UpdateOne(filter, update);
 
             return Ok("Change password successful");
-        }
-
-        // DELETE api/<UserController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }
