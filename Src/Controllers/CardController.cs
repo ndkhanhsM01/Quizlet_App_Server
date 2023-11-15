@@ -23,7 +23,7 @@ namespace Quizlet_App_Server.Controllers
         {
             return userService.UpdateDocumentsUser(existingUser);
         }
-        [HttpPost("userId")]
+        [HttpPost]
         public ActionResult<Documents> Create(string userId, [FromBody] FlashCardDTO cardReq)
         {
             User existingUser = userService.FindById(userId);
@@ -55,8 +55,8 @@ namespace Quizlet_App_Server.Controllers
             return new ActionResult<Documents>(existingUser.Documents);
         }
 
-        [HttpPost("userId")]
-        public ActionResult<Documents> Update([FromHeader] string userId, [FromHeader] string cardId, [FromBody] FlashCardDTO newInfo)
+        [HttpPut]
+        public ActionResult<Documents> Update(string userId, string cardId, [FromBody] FlashCardDTO newInfo)
         {
             User existingUser = userService.FindById(userId);
 
@@ -71,6 +71,10 @@ namespace Quizlet_App_Server.Controllers
             {
                 return NotFound("Card require not found");
             }
+            if(existingUser.Documents.StudySets.All(set => !set.Id.Equals(newInfo.IdSetOwner)))
+            {
+                newInfo.IdSetOwner = string.Empty;
+            }
             // update card
             cardRequire.Term = newInfo.Term;
             cardRequire.Definition = newInfo.Definition;
@@ -83,8 +87,8 @@ namespace Quizlet_App_Server.Controllers
             return new ActionResult<Documents>(existingUser.Documents);
         }
 
-        [HttpPost("userId")]
-        public ActionResult<Documents> Remove([FromHeader] string userId, [FromHeader] string cardId)
+        [HttpDelete]
+        public ActionResult<Documents> Delete(string userId, string cardId)
         {
             User existingUser = userService.FindById(userId);
 
