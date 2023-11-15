@@ -25,6 +25,10 @@ namespace Quizlet_App_Server.Controllers
             {
                 return NotFound("User not found");
             }
+            else if (userExisting.Documents.StudySets.Any(set => set.Name.Equals(req.Name) && set.IdFolderOwner.Equals(req.IdFolderOwner)))
+            {
+                return BadRequest("Has exist other study set same name in folder");
+            }
 
             Folder folderOwner = userExisting.Documents.Folders.Find(x => x.Id.Equals(req.IdFolderOwner));
             if(folderOwner == null)
