@@ -26,6 +26,10 @@ namespace Quizlet_App_Server.Src.Controllers
             {
                 return NotFound("User not found");
             }
+            else if(userExisting.Documents.Folders.Any(folder => folder.Name.Equals(req.Name)))
+            {
+                return BadRequest("Has exist other folder same name");
+            }
 
             Folder newFolder = new(req);
             userExisting.Documents.Folders.Add(newFolder);
@@ -73,9 +77,17 @@ namespace Quizlet_App_Server.Src.Controllers
 
             // remove folder
             userExisting.Documents.Folders.RemoveAll(folder => folder.Id.Equals(folderId));
-            // remove study set
-            //StudySetController studySetController = new(setting, )
-            //userService.UpdateDocumentsUser(userExisting);
+
+            List<string> setRemoved = new();
+            foreach (var set in userExisting.Documents.StudySets)
+            {
+                if (set.IdFolderOwner == folderId)
+                    setRemoved.Add(set.Id);
+            }
+            // remove sets and cards are related to each other
+            userExisting.Documents.FlashCards.RemoveAll(card => setRemoved.Contains(card.IdSetOwner));
+            userExisting.Documents.StudySets.RemoveAll(set => set.IdFolderOwner.Equals(folderId));
+            userService.UpdateDocumentsUser(userExisting);
 
             return new ActionResult<Documents>(userExisting.Documents);
         }
