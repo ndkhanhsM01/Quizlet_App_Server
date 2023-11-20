@@ -57,8 +57,14 @@ namespace Quizlet_App_Server.Controllers
         [HttpPost]
         public ActionResult<User> SignUp([FromBody] UserSignUp request)
         {
-            User newUser = new User() { LoginName = request.LoginName, LoginPassword = request.LoginPassword };
-            
+            User newUser = new User()
+            { 
+                LoginName = request.LoginName, 
+                LoginPassword = request.LoginPassword ,
+                Email = request.Email,
+                DateOfBirth = request.DateOfBirth
+            };
+
             // validate user
             var existingDocument = service.FindByLoginName(request.LoginName); 
 
