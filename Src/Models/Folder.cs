@@ -13,11 +13,12 @@ namespace Quizlet_App_Server.Models
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         //[BsonElement("study_sets")] public List<StudySet> StudySets { get; set; } = new List<StudySet>();
-
+        [BsonElement("description")] public string Description { get; set; } = string.Empty;
         public Folder() { }
         public Folder(FolderDTO dto)
         {
             this.Name = dto.Name;
+            this.Description = dto.Description;
         }
     }
 
@@ -25,5 +26,6 @@ namespace Quizlet_App_Server.Models
     public class FolderDTO
     {
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
+        [BsonElement("description")] public string Description { get; set; } = string.Empty;
     }
 }
