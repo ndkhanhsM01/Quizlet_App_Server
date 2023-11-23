@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Src\Controllers\Helper\" />
     <Folder Include="Src\Models\Validate\" />
   </ItemGroup>
