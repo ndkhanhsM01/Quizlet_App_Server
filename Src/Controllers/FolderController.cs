@@ -18,7 +18,7 @@ namespace Quizlet_App_Server.Src.Controllers
             userService = new(mongoClient, config);
         }
         [HttpPost]
-        public ActionResult<Documents> Create(string userId, [FromBody] FolderDTO req)
+        public ActionResult<UserRespone> Create(string userId, [FromBody] FolderDTO req)
         {
             User userExisting = userService.FindById(userId);
 
@@ -35,10 +35,11 @@ namespace Quizlet_App_Server.Src.Controllers
             userExisting.Documents.Folders.Add(newFolder);
             userService.UpdateDocumentsUser(userExisting);
 
-            return new ActionResult<Documents>(userExisting.Documents);
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
         }
         [HttpPut]
-        public ActionResult<Documents> Update(string userId, string folderId, [FromBody] FolderDTO req)
+        public ActionResult<UserRespone> Update(string userId, string folderId, [FromBody] FolderDTO req)
         {
             User userExisting = userService.FindById(userId);
 
@@ -57,11 +58,12 @@ namespace Quizlet_App_Server.Src.Controllers
             existFolder.Name = req.Name;
             userService.UpdateDocumentsUser(userExisting);
 
-            return new ActionResult<Documents>(userExisting.Documents);
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
         }
 
         [HttpDelete]
-        public ActionResult<Documents> Delete(string userId, string folderId)
+        public ActionResult<UserRespone> Delete(string userId, string folderId)
         {
             User userExisting = userService.FindById(userId);
 
@@ -89,7 +91,8 @@ namespace Quizlet_App_Server.Src.Controllers
             userExisting.Documents.StudySets.RemoveAll(set => set.IdFolderOwner.Equals(folderId));
             userService.UpdateDocumentsUser(userExisting);
 
-            return new ActionResult<Documents>(userExisting.Documents);
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
         }
     }
 }

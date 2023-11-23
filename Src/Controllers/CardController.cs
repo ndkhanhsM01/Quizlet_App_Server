@@ -24,7 +24,7 @@ namespace Quizlet_App_Server.Controllers
             return userService.UpdateDocumentsUser(existingUser);
         }
         [HttpPost]
-        public ActionResult<Documents> Create(string userId, [FromBody] FlashCardDTO cardReq)
+        public ActionResult<UserRespone> Create(string userId, [FromBody] FlashCardDTO cardReq)
         {
             User existingUser = userService.FindById(userId);
 
@@ -47,11 +47,12 @@ namespace Quizlet_App_Server.Controllers
             existingUser.Documents.FlashCards.Add(newCard);
             var result = UpdateDocumentsUser(existingUser);
 
-            return new ActionResult<Documents>(existingUser.Documents);
+            UserRespone respone = new UserRespone(existingUser);
+            return new ActionResult<UserRespone>(respone);
         }
 
         [HttpPut]
-        public ActionResult<Documents> Update(string userId, string cardId, [FromBody] FlashCardDTO newInfo)
+        public ActionResult<UserRespone> Update(string userId, string cardId, [FromBody] FlashCardDTO newInfo)
         {
             User existingUser = userService.FindById(userId);
 
@@ -79,11 +80,12 @@ namespace Quizlet_App_Server.Controllers
             // update card
             var result = UpdateDocumentsUser(existingUser);
 
-            return new ActionResult<Documents>(existingUser.Documents);
+            UserRespone respone = new UserRespone(existingUser);
+            return new ActionResult<UserRespone>(respone);
         }
 
         [HttpDelete]
-        public ActionResult<Documents> Delete(string userId, string cardId)
+        public ActionResult<UserRespone> Delete(string userId, string cardId)
         {
             User existingUser = userService.FindById(userId);
 
@@ -106,7 +108,8 @@ namespace Quizlet_App_Server.Controllers
             // delete card
             var result = UpdateDocumentsUser(existingUser);
 
-            return new ActionResult<Documents>(existingUser.Documents);
+            UserRespone respone = new UserRespone(existingUser);
+            return new ActionResult<UserRespone>(respone);
         }
     }
 }
