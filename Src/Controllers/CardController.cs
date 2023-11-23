@@ -32,12 +32,7 @@ namespace Quizlet_App_Server.Controllers
             {
                 return NotFound("User not found");
             }
-            FlashCard newCard = new()
-            {
-                Term = cardReq.Term,
-                Definition = cardReq.Definition,
-                IsPublic = cardReq.IsPublic
-            };
+            FlashCard newCard = new(cardReq);
 
             StudySet setOwner = existingUser.Documents.StudySets.Find(x => x.Id == cardReq.IdSetOwner);
             if(setOwner != null)
@@ -79,7 +74,7 @@ namespace Quizlet_App_Server.Controllers
             cardRequire.Term = newInfo.Term;
             cardRequire.Definition = newInfo.Definition;
             cardRequire.IdSetOwner = newInfo.IdSetOwner;
-            cardRequire.IsPublic = newInfo.IsPublic;
+            //cardRequire.IsPublic = newInfo.IsPublic;
 
             // update card
             var result = UpdateDocumentsUser(existingUser);

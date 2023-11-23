@@ -84,6 +84,40 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
+        public StudySetPublic GetOneStudySetPublic(string userId, string setId)
+        {
+            User user = FindById(userId);
+
+            if (user == null) return null;
+
+            StudySet set = user.Documents.StudySets.Find(s => s.Id.Equals(setId) && s.IsPublic);
+            if (set == null) return null;
+
+            StudySetPublic newSetPublic = new StudySetPublic(userId, set, user.Documents);
+
+            return newSetPublic;
+        }
+        public List<StudySetPublic> GetAllStudySetPublic(string userId)
+        {
+            User user = FindById(userId);
+
+            if (user == null) return null;
+
+            List<StudySet> allSetPublic = user.Documents.StudySets.FindAll(s => s.IsPublic);
+            if (allSetPublic == null || allSetPublic.Count <= 0)
+            {
+                allSetPublic = new();
+            }
+
+            List<StudySetPublic> result = new List<StudySetPublic>();
+            foreach (var studySet in allSetPublic)
+            {
+                StudySetPublic setPublic = new StudySetPublic(userId, studySet, user.Documents);
+                result.Add(setPublic);
+            }
+
+            return result;
+        }
         public List<FlashCard> FindAllCardsSameSet(string idUser, string idSet)
         {
             User user = FindById(idUser);

@@ -36,11 +36,7 @@ namespace Quizlet_App_Server.Controllers
                 req.IdFolderOwner = string.Empty;
             }
 
-            StudySet newSet = new()
-            {
-                Name = req.Name,
-                IdFolderOwner = req.IdFolderOwner
-            };
+            StudySet newSet = new(req);
             userExisting.Documents.StudySets.Add(newSet);
             userService.UpdateDocumentsUser(userExisting);
         
@@ -63,6 +59,7 @@ namespace Quizlet_App_Server.Controllers
                 {
                     set.IdFolderOwner = req.IdFolderOwner;
                     set.Name = req.Name;
+                    set.IsPublic = req.IsPublic;
                     setFound = true;
                     break;
                 }

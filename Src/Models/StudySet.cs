@@ -15,7 +15,15 @@ namespace Quizlet_App_Server.Models
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         //[BsonElement("cards")] public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
         [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
+        [BsonElement("is_public")] public bool IsPublic { get; set; } = false;
 
+        public StudySet() { }
+        public StudySet(StudySetDTO dto)
+        {
+            this.Name = dto.Name;
+            this.IdFolderOwner = dto.IdFolderOwner;
+            this.IsPublic = dto.IsPublic;
+        }
     }
 
     [System.Serializable]
@@ -23,5 +31,6 @@ namespace Quizlet_App_Server.Models
     {
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
+        [BsonElement("is_public")] public bool IsPublic { get; set; } = false;
     }
 }
