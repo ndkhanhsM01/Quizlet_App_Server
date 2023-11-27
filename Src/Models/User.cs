@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewEngines;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Libmongocrypt;
 using Quizlet_App_Server.Utility;
 
 namespace Quizlet_App_Server.Models
@@ -16,6 +17,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("login_password")] public string LoginPassword { get; set; } = string.Empty;
         [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
         [BsonElement("email")] public string Email { get; set; } = string.Empty;
+        [BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
@@ -43,5 +45,35 @@ namespace Quizlet_App_Server.Models
     {
         [BsonElement("old_password")] public string OldPassword { get; set; } = string.Empty;
         [BsonElement("new_password")] public string NewPassword { get; set; } = string.Empty;
+    }
+
+    [System.Serializable]
+    public class UserRespone
+    {
+        public string Id { get; set; } = string.Empty;
+        [BsonElement("seq_id")] public int SeqId { get; set; }
+        [BsonElement("login_name")] public string LoginName { get; set; } = string.Empty;
+        //[BsonElement("login_password")] public string LoginPassword { get; set; } = string.Empty;
+        [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
+        [BsonElement("email")] public string Email { get; set; } = string.Empty;
+        [BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
+        [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
+        [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
+        [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
+
+        public UserRespone(User user)
+        {
+            this.Id = user.Id;
+            this.SeqId = user.SeqId;
+            this.LoginName = user.LoginName;
+            this.UserName = user.UserName;
+            this.Email = user.Email;
+            this.Avatar = user.Avatar;
+            this.DateOfBirth = user.DateOfBirth;
+            this.TimeCreated = user.TimeCreated;
+            this.Documents = user.Documents;
+            this.Setting = user.Setting;
+        }
     }
 }

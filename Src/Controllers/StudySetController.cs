@@ -18,14 +18,9 @@ namespace Quizlet_App_Server.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Documents> Create(string userId, [FromBody] StudySetDTO req)
+        public ActionResult<UserRespone> Create(string userId, [FromBody] StudySetDTO req)
         {
             User userExisting = userService.FindById(userId);
-
-            //bool existSet(StudySet set){
-
-            //}
-
             if(userExisting == null)
             {
                 return NotFound("User not found");
@@ -56,11 +51,12 @@ namespace Quizlet_App_Server.Controllers
             if(allNewCards.Count > 0) userExisting.Documents.FlashCards.AddRange(allNewCards);
             userService.UpdateDocumentsUser(userExisting);
         
-            return new ActionResult<Documents>(userExisting.Documents);
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
         }
 
         [HttpPut]
-        public ActionResult<Documents> Update(string userId, string setId, [FromBody] StudySetDTO req)
+        public ActionResult<UserRespone> Update(string userId, string setId, [FromBody] StudySetDTO req)
         {
             User userExisting = userService.FindById(userId);
             if (userExisting == null)
@@ -75,6 +71,7 @@ namespace Quizlet_App_Server.Controllers
                 {
                     set.IdFolderOwner = req.IdFolderOwner;
                     set.Name = req.Name;
+                    set.IsPublic = req.IsPublic;
                     setFound = true;
                     break;
                 }
@@ -85,7 +82,8 @@ namespace Quizlet_App_Server.Controllers
             {
                 userService.UpdateDocumentsUser(userExisting);
 
-                return new ActionResult<Documents>(userExisting.Documents);
+                UserRespone respone = new UserRespone(userExisting);
+                return new ActionResult<UserRespone>(respone);
             }
             else
             {
@@ -93,7 +91,7 @@ namespace Quizlet_App_Server.Controllers
             }
         }
         [HttpDelete]
-        public ActionResult<Documents> Delete(string userId, string setId)
+        public ActionResult<UserRespone> Delete(string userId, string setId)
         {
             User userExisting = userService.FindById(userId);
             if (userExisting == null)
@@ -113,7 +111,8 @@ namespace Quizlet_App_Server.Controllers
             // update documents
             userService.UpdateDocumentsUser(userExisting);
 
-            return new ActionResult<Documents>(userExisting.Documents);
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
         }
     }
 }
