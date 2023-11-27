@@ -21,13 +21,14 @@ namespace Quizlet_App_Server.Controllers
         public ActionResult<Documents> Create(string userId, [FromBody] StudySetDTO req)
         {
             User userExisting = userService.FindById(userId);
+
+            //bool existSet(StudySet set){
+
+            //}
+
             if(userExisting == null)
             {
                 return NotFound("User not found");
-            }
-            else if (userExisting.Documents.StudySets.Any(set => set.Name.Equals(req.Name) && set.IdFolderOwner.Equals(req.IdFolderOwner)))
-            {
-                return BadRequest("Has exist other study set same name in folder");
             }
 
             Folder folderOwner = userExisting.Documents.Folders.Find(x => x.Id.Equals(req.IdFolderOwner));
@@ -35,13 +36,24 @@ namespace Quizlet_App_Server.Controllers
             {
                 req.IdFolderOwner = string.Empty;
             }
-
-            StudySet newSet = new()
+            if (userExisting.Documents.StudySets.Any(set => set.Name.Equals(req.Name) && set.IdFolderOwner.Equals(req.IdFolderOwner)))
             {
-                Name = req.Name,
-                IdFolderOwner = req.IdFolderOwner
-            };
+                return BadRequest("Has exist other study set same name in folder");
+            }
+
+            StudySet newSet = new(req);
+            List<FlashCard> allNewCards = new List<FlashCard>();
+            if(req.AllNewCards != null && req.AllNewCards.Count > 0)
+            {
+                foreach(FlashCardDTO cardDTO in req.AllNewCards)
+                {
+                    cardDTO.IdSetOwner = newSet.Id;
+                    allNewCards.Add(new FlashCard(cardDTO));
+                }
+            }
+
             userExisting.Documents.StudySets.Add(newSet);
+            if(allNewCards.Count > 0) userExisting.Documents.FlashCards.AddRange(allNewCards);
             userService.UpdateDocumentsUser(userExisting);
         
             return new ActionResult<Documents>(userExisting.Documents);

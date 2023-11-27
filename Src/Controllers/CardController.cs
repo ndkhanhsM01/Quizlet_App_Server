@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
@@ -43,6 +44,7 @@ namespace Quizlet_App_Server.Controllers
             if(setOwner != null)
             {
                 newCard.IdSetOwner = setOwner.Id;
+                setOwner.CountTerm++;
             }
             else
             {
@@ -106,6 +108,16 @@ namespace Quizlet_App_Server.Controllers
             else
             {
                 existingUser.Documents.FlashCards.Remove(cardRequire);
+            }
+
+            // reduce count term in set owner
+            if(cardRequire.IdSetOwner.IsNullOrEmpty() == false)
+            {
+                StudySet setOwner = existingUser.Documents.StudySets.Find(set => set.Id.Equals(cardRequire.IdSetOwner));
+                if(setOwner != null)
+                {
+                    setOwner.CountTerm--;
+                }
             }
 
             // delete card
