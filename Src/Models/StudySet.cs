@@ -13,20 +13,37 @@ namespace Quizlet_App_Server.Models
 
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
-        //[BsonElement("cards")] public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
         [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
         [BsonElement("is_public")] public bool IsPublic { get; set; } = false;
-        [BsonElement("count_term")] public int CountTerm { get; set; } = 0;
-
+        [BsonElement("count_term")] public int CountTerm
+        {
+            get
+            {
+                if (Cards == null) return 0;
+                else return Cards.Count;
+            }
+        }
+        [BsonElement("cards")] public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
         public StudySet() { }
         public StudySet(StudySetDTO dto)
         {
             this.Name = dto.Name;
             this.IdFolderOwner = dto.IdFolderOwner;
             this.IsPublic = dto.IsPublic;
-
-            if(dto.AllNewCards != null && dto.AllNewCards.Count > 0) CountTerm = dto.AllNewCards.Count;
-            else CountTerm = 0;
+            if (dto.AllNewCards != null && dto.AllNewCards.Count > 0)
+            {
+                this.Cards = new();
+                foreach (FlashCardDTO cardDTO in dto.AllNewCards)
+                {
+                    cardDTO.IdSetOwner = this.Id;
+                    Cards.Add(new FlashCard(cardDTO));
+                }
+            }
+        }
+        public void AddNewCard(FlashCardDTO cardDTO)
+        {
+            cardDTO.IdSetOwner = this.Id;
+            Cards.Add(new FlashCard(cardDTO));
         }
     }
 

@@ -39,14 +39,22 @@ namespace Quizlet_App_Server.Controllers
             if(setOwner != null)
             {
                 newCard.IdSetOwner = setOwner.Id;
-                setOwner.CountTerm++;
             }
             else
             {
                 newCard.IdSetOwner = string.Empty;
             }
 
-            existingUser.Documents.FlashCards.Add(newCard);
+            if (setOwner != null && setOwner.Id.Equals(cardReq.IdSetOwner))
+            {
+                setOwner.Cards.Add(newCard);
+            }
+            else
+            {
+                newCard.IdSetOwner = string.Empty;
+                existingUser.Documents.FlashCards.Add(newCard);
+            }
+
             var result = UpdateDocumentsUser(existingUser);
 
             UserRespone respone = new UserRespone(existingUser);
@@ -54,7 +62,7 @@ namespace Quizlet_App_Server.Controllers
         }
 
         [HttpPut]
-        public ActionResult<UserRespone> Update(string userId, string cardId, [FromBody] FlashCardDTO newInfo)
+        public ActionResult<UserRespone> UpdateInfo(string userId, string cardId, [FromBody] FlashCardDTO req)
         {
             User existingUser = userService.FindById(userId);
 
@@ -64,20 +72,17 @@ namespace Quizlet_App_Server.Controllers
             }
 
             // find card in document
-            FlashCard cardRequire = existingUser.Documents.FlashCards.Find(x => x.Id == cardId);
+            FlashCard cardRequire = existingUser.Documents.GetAllCards().Find(x => x.Id == cardId);
+
             if (cardRequire == null)
             {
-                return NotFound("Card require not found");
+                return BadRequest("card not found");
             }
-            if(existingUser.Documents.StudySets.All(set => !set.Id.Equals(newInfo.IdSetOwner)))
-            {
-                newInfo.IdSetOwner = string.Empty;
-            }
+
             // update card
-            cardRequire.Term = newInfo.Term;
-            cardRequire.Definition = newInfo.Definition;
-            cardRequire.IdSetOwner = newInfo.IdSetOwner;
-            //cardRequire.IsPublic = newInfo.IsPublic;
+            cardRequire.Term = req.Term;
+            cardRequire.Definition = req.Definition;
+
 
             // update card
             var result = UpdateDocumentsUser(existingUser);
@@ -97,24 +102,21 @@ namespace Quizlet_App_Server.Controllers
             }
 
             // find and remove card in document
-            FlashCard cardRequire = existingUser.Documents.FlashCards.Find(x => x.Id == cardId);
+            FlashCard cardRequire = existingUser.Documents.GetAllCards().Find(card => card.Id.Equals(cardId));
+            
             if(cardRequire == null)
             {
-                return NotFound("Card not found");
+                return NotFound("Not found card");
             }
-            else
+
+            if (cardRequire.IdSetOwner.IsNullOrEmpty())
             {
                 existingUser.Documents.FlashCards.Remove(cardRequire);
             }
-
-            // reduce count term in set owner
-            if(cardRequire.IdSetOwner.IsNullOrEmpty() == false)
+            else
             {
-                StudySet setOwner = existingUser.Documents.StudySets.Find(set => set.Id.Equals(cardRequire.IdSetOwner));
-                if(setOwner != null)
-                {
-                    setOwner.CountTerm--;
-                }
+                StudySet setOwner = existingUser.Documents.GetAllSets().Find(set => set.Id.Equals(cardRequire.IdSetOwner));
+                setOwner?.Cards.Remove(cardRequire);
             }
 
             // delete card

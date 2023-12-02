@@ -27,28 +27,26 @@ namespace Quizlet_App_Server.Controllers
             }
 
             Folder folderOwner = userExisting.Documents.Folders.Find(x => x.Id.Equals(req.IdFolderOwner));
-            if(folderOwner == null)
-            {
-                req.IdFolderOwner = string.Empty;
-            }
-            if (userExisting.Documents.StudySets.Any(set => set.Name.Equals(req.Name) && set.IdFolderOwner.Equals(req.IdFolderOwner)))
-            {
-                return BadRequest("Has exist other study set same name in folder");
-            }
 
             StudySet newSet = new(req);
-            List<FlashCard> allNewCards = new List<FlashCard>();
-            if(req.AllNewCards != null && req.AllNewCards.Count > 0)
+
+            if(folderOwner != null && folderOwner.Id.Equals(req.IdFolderOwner))
             {
-                foreach(FlashCardDTO cardDTO in req.AllNewCards)
+                if (folderOwner.StudySets.Any(set => set.Name.Equals(req.Name)))
                 {
-                    cardDTO.IdSetOwner = newSet.Id;
-                    allNewCards.Add(new FlashCard(cardDTO));
+                    return BadRequest("Has exist other study set same name in folder");
+                }
+                else
+                {
+                    folderOwner.StudySets.Add(newSet);
                 }
             }
+            else
+            {
+                newSet.IdFolderOwner = string.Empty;
+                userExisting.Documents.StudySets.Add(newSet);
+            }
 
-            userExisting.Documents.StudySets.Add(newSet);
-            if(allNewCards.Count > 0) userExisting.Documents.FlashCards.AddRange(allNewCards);
             userService.UpdateDocumentsUser(userExisting);
         
             UserRespone respone = new UserRespone(userExisting);
@@ -56,7 +54,7 @@ namespace Quizlet_App_Server.Controllers
         }
 
         [HttpPut]
-        public ActionResult<UserRespone> Update(string userId, string setId, [FromBody] StudySetDTO req)
+        public ActionResult<UserRespone> UpdateInfo(string userId, string setId, [FromBody] StudySetDTO req)
         {
             User userExisting = userService.FindById(userId);
             if (userExisting == null)
@@ -65,30 +63,75 @@ namespace Quizlet_App_Server.Controllers
             }
 
             bool setFound = false;
-            foreach(StudySet set in userExisting.Documents.StudySets)
+            bool moveToNewFolder = false;
+            var allSets = userExisting.Documents.GetAllSets();
+            var allFolders = userExisting.Documents.Folders;
+
+            StudySet setUpdating = userExisting.Documents.GetAllSets().Find(set => set.Id.Equals(setId));
+
+            if(setUpdating == null)
             {
-                if(set.Id.Equals(setId))
-                {
-                    set.IdFolderOwner = req.IdFolderOwner;
-                    set.Name = req.Name;
-                    set.IsPublic = req.IsPublic;
-                    setFound = true;
-                    break;
-                }
+                return BadRequest("Set not found");
             }
 
-            // update set if was found
-            if (setFound)
-            {
-                userService.UpdateDocumentsUser(userExisting);
+            // update set
+            setUpdating.Name = req.Name;
+            setUpdating.IsPublic = req.IsPublic;
 
-                UserRespone respone = new UserRespone(userExisting);
-                return new ActionResult<UserRespone>(respone);
-            }
-            else
+            // update set
+            userService.UpdateDocumentsUser(userExisting);
+
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
+        }
+        [HttpPost]
+        public ActionResult<UserRespone> InsertNewCard(string userId, string setId, [FromBody] List<FlashCardDTO> newCards)
+        {
+            User userExisting = userService.FindById(userId);
+
+            if (userExisting == null)
             {
-                return BadRequest("Set's Id inconrrect");
+                return NotFound("User not found");
             }
+
+            StudySet studySet = userExisting.Documents.GetAllSets().Find(s => s.Id.Equals(setId));
+            if (studySet == null)
+            {
+                return BadRequest("Not found study set in user's document");
+            }
+
+            foreach (var cardDTO in newCards)
+            {
+                studySet.AddNewCard(cardDTO);
+            }
+
+            userService.UpdateDocumentsUser(userExisting);
+
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
+        }
+        [HttpDelete]
+        public ActionResult<UserRespone> RemoveCard(string userId, string setId, string cardId)
+        {
+            User userExisting = userService.FindById(userId);
+
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            StudySet studySet = userExisting.Documents.GetAllSets().Find(s => s.Id.Equals(setId));
+            if (studySet == null)
+            {
+                return BadRequest("Not found study set in user's document");
+            }
+
+            studySet.Cards.RemoveAll(c => c.Id.Equals(cardId));
+
+            userService.UpdateDocumentsUser(userExisting);
+
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
         }
         [HttpDelete]
         public ActionResult<UserRespone> Delete(string userId, string setId)
@@ -98,15 +141,19 @@ namespace Quizlet_App_Server.Controllers
             {
                 return NotFound("User not found");
             }
-            else if(userExisting.Documents.StudySets.Count <= 0 || !userExisting.Documents.StudySets.Any(set => set.Id.Equals(setId)))
-            {
-                return BadRequest("Set's Id inconrrect");
-            }
+
+            StudySet setReq = userExisting.Documents.GetAllSets().Find(set => set.Id.Equals(setId));
+            Folder folderOwner = userExisting.Documents.GetFolderOwnerOfSet(setId);
 
             // delete set require
-            
-            userExisting.Documents.StudySets.RemoveAll(set => set.Id.Equals(setId));
-            userExisting.Documents.FlashCards.RemoveAll(card => card.IdSetOwner.Equals(setId));
+            if (folderOwner != null)
+            {
+                folderOwner.StudySets.Remove(setReq);
+            }
+            else
+            {
+                userExisting.Documents.StudySets.Remove(setReq);
+            }
 
             // update documents
             userService.UpdateDocumentsUser(userExisting);

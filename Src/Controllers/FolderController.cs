@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.Controllers;
 using Quizlet_App_Server.DataSettings;
@@ -39,7 +40,7 @@ namespace Quizlet_App_Server.Src.Controllers
             return new ActionResult<UserRespone>(respone);
         }
         [HttpPut]
-        public ActionResult<UserRespone> Update(string userId, string folderId, [FromBody] FolderDTO req)
+        public ActionResult<UserRespone> UpdateInfo(string userId, string folderId, [FromBody] FolderDTO req)
         {
             User userExisting = userService.FindById(userId);
 
@@ -56,12 +57,104 @@ namespace Quizlet_App_Server.Src.Controllers
             // update folder
             Folder existFolder = userExisting.Documents.Folders.Find(folder => folder.Id == folderId);
             existFolder.Name = req.Name;
+            existFolder.Description = req.Description;
             userService.UpdateDocumentsUser(userExisting);
 
             UserRespone respone = new UserRespone(userExisting);
             return new ActionResult<UserRespone>(respone);
         }
+        [HttpPost]
+        public ActionResult<UserRespone> InsertNewSet(string userId, string folderId, [FromBody] List<StudySetDTO> newSets)
+        {
+            User userExisting = userService.FindById(userId);
 
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            Folder folder = userExisting.Documents.Folders.Find(f => f.Id.Equals(folderId));
+            if (folder == null)
+            {
+                return BadRequest("Not found folder in user's document");
+            }
+
+            foreach(var s in newSets)
+            {
+                folder.AddNewSet(s);
+            }
+
+            userService.UpdateDocumentsUser(userExisting);
+
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
+        }
+        [HttpPost]
+        public ActionResult<UserRespone> InsertSetExisting(string userId, string folderId, [FromBody] List<string> idSetExisting)
+        {
+            User userExisting = userService.FindById(userId);
+
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            Folder folder = userExisting.Documents.Folders.Find(f => f.Id.Equals(folderId));
+            if (folder == null)
+            {
+                return BadRequest("Not found folder in user's document");
+            }
+
+            var allSet = userExisting.Documents.GetAllSets();
+            int countAdded = 0;
+            foreach (var set in allSet)
+            {
+
+                if (idSetExisting.Contains(set.Id))
+                {
+                    if (set.IdFolderOwner.IsNullOrEmpty())
+                    {
+                        userExisting.Documents.StudySets.Remove(set);
+                    }
+                    folder.AddNewSet(set);
+                    countAdded++;
+                }
+
+                if (countAdded == idSetExisting.Count) break;
+            }
+
+            userService.UpdateDocumentsUser(userExisting);
+
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
+        }
+        [HttpDelete]
+        public ActionResult<UserRespone> RemoveSet(string userId, string folderId, string setId)
+        {
+            User userExisting = userService.FindById(userId);
+
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            Folder folder = userExisting.Documents.Folders.Find(f => f.Id.Equals(folderId));
+            if (folder == null)
+            {
+                return BadRequest("Not found folder in user's document");
+            }
+
+            int removed = folder.StudySets.RemoveAll(s => s.Id.Equals(setId));
+            if (removed <= 0)
+            {
+                return BadRequest("Not found set");
+            };
+
+            userService.UpdateDocumentsUser(userExisting);
+
+            UserRespone respone = new UserRespone(userExisting);
+            return new ActionResult<UserRespone>(respone);
+        }
         [HttpDelete]
         public ActionResult<UserRespone> Delete(string userId, string folderId)
         {
@@ -80,15 +173,6 @@ namespace Quizlet_App_Server.Src.Controllers
             // remove folder
             userExisting.Documents.Folders.RemoveAll(folder => folder.Id.Equals(folderId));
 
-            List<string> setRemoved = new();
-            foreach (var set in userExisting.Documents.StudySets)
-            {
-                if (set.IdFolderOwner == folderId)
-                    setRemoved.Add(set.Id);
-            }
-            // remove sets and cards are related to each other
-            userExisting.Documents.FlashCards.RemoveAll(card => setRemoved.Contains(card.IdSetOwner));
-            userExisting.Documents.StudySets.RemoveAll(set => set.IdFolderOwner.Equals(folderId));
             userService.UpdateDocumentsUser(userExisting);
 
             UserRespone respone = new UserRespone(userExisting);
