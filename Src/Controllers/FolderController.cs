@@ -54,6 +54,11 @@ namespace Quizlet_App_Server.Src.Controllers
                 return BadRequest("Not found folder in user's document");
             }
 
+            if(userExisting.Documents.Folders.Any(folder => folder.Name.Equals(req.Name)))
+            {
+                return BadRequest("Has exist other folder same name");
+            }
+
             // update folder
             Folder existFolder = userExisting.Documents.Folders.Find(folder => folder.Id == folderId);
             existFolder.Name = req.Name;

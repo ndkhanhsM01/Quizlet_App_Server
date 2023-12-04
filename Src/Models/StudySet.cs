@@ -15,6 +15,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
         [BsonElement("is_public")] public bool IsPublic { get; set; } = false;
+        [BsonElement("description")] public string Description { get; set; } = string.Empty;
         [BsonElement("count_term")] public int CountTerm
         {
             get
@@ -30,6 +31,7 @@ namespace Quizlet_App_Server.Models
             this.Name = dto.Name;
             this.IdFolderOwner = dto.IdFolderOwner;
             this.IsPublic = dto.IsPublic;
+            this.Description = dto.Description;
             if (dto.AllNewCards != null && dto.AllNewCards.Count > 0)
             {
                 this.Cards = new();
@@ -53,6 +55,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
         [BsonElement("is_public")] public bool IsPublic { get; set; } = false;
+        [BsonElement("description")] public string Description { get; set; } = string.Empty;
         [BsonElement("all_new_cards")] public List<FlashCardDTO> AllNewCards { get; set; } = new List<FlashCardDTO>();
     }
 }
