@@ -77,7 +77,10 @@ namespace Quizlet_App_Server.Controllers
             // update set
             setUpdating.Name = req.Name;
             setUpdating.IsPublic = req.IsPublic;
-
+            foreach(var card in req.AllNewCards)
+            {
+                setUpdating.AddNewCard(card);
+            }
             // update set
             userService.UpdateDocumentsUser(userExisting);
 
