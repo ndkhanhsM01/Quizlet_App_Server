@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
@@ -79,7 +80,17 @@ namespace Quizlet_App_Server.Controllers
             setUpdating.IsPublic = req.IsPublic;
             foreach(var card in req.AllNewCards)
             {
-                setUpdating.AddNewCard(card);
+                if (card.Id.IsNullOrEmpty())
+                {
+                    setUpdating.AddNewCard(card);
+                    continue;
+                }
+
+                FlashCard cardReference = setUpdating.Cards.Find(c => c.Id.Equals(card.Id));
+                if(cardReference != null)
+                {
+                    cardReference.UpdateInfo(card);
+                }
             }
             // update set
             userService.UpdateDocumentsUser(userExisting);

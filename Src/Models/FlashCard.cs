@@ -23,11 +23,20 @@ namespace Quizlet_App_Server.Models
             this.Definition= dto.Definition;
             this.IdSetOwner= dto.IdSetOwner;
         }
+        public void UpdateInfo(FlashCardDTO cardDTO)
+        {
+            this.Id = this.Id;                      // not update id
+            this.TimeCreated = this.TimeCreated;    // not update time created
+            this.Term = cardDTO.Term;
+            this.Definition = cardDTO.Definition;
+            this.IdSetOwner = cardDTO.IdSetOwner;
+        }
     }
 
     [Serializable]
     public class FlashCardDTO
     {
+        public string Id { get; set; } = null;
         [BsonElement("term")] public string Term { get; set; } = string.Empty;
         [BsonElement("definition")] public string Definition { get; set; } = string.Empty;
         [BsonElement("id_set_owner")] public string IdSetOwner { get; set; } = string.Empty;
