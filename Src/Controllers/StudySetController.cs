@@ -77,22 +77,32 @@ namespace Quizlet_App_Server.Controllers
 
             // update set
             setUpdating.Name = req.Name;
+            setUpdating.Description = req.Description;
             setUpdating.IsPublic = req.IsPublic;
+
+            List<FlashCard> tempCards = new List<FlashCard>();
             foreach(var card in req.AllNewCards)
             {
                 if (card.Id.IsNullOrEmpty())
                 {
-                    setUpdating.AddNewCard(card);
-                    continue;
+                    //setUpdating.AddNewCard(card);
+                    FlashCard newCard = new FlashCard(card);
+                    newCard.IdSetOwner = setUpdating.Id;
+                    tempCards.Add(newCard);
                 }
-
-                FlashCard cardReference = setUpdating.Cards.Find(c => c.Id.Equals(card.Id));
-                if(cardReference != null)
+                else
                 {
-                    cardReference.UpdateInfo(card);
+                    FlashCard cardReference = setUpdating.Cards.Find(c => c.Id.Equals(card.Id));
+                    if (cardReference != null)
+                    {
+                        cardReference.UpdateInfo(card);
+
+                        tempCards.Add(cardReference);
+                    }
                 }
             }
             // update set
+            setUpdating.Cards = tempCards;
             userService.UpdateDocumentsUser(userExisting);
 
             UserRespone respone = new UserRespone(userExisting);
