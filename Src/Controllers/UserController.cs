@@ -106,5 +106,18 @@ namespace Quizlet_App_Server.Controllers
 
             return Ok("Change password successful");
         }
+        [HttpPut]
+        public ActionResult<InfoPersonal> UpdateInfo(string userId, [FromBody] InfoPersonal req)
+        {
+            User userExisting = service.FindById(userId);
+
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var result = service.UpdateInfoUser(userId, req);
+            return new ActionResult<InfoPersonal>(result);
+        }
     }
 }

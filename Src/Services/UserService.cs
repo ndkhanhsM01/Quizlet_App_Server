@@ -84,6 +84,24 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
+        public InfoPersonal UpdateInfoUser(string userId, InfoPersonal newInfo)
+        {
+            var update = Builders<User>.Update
+                .Set("user_name", newInfo.UserName)
+                .Set("email", newInfo.Email)
+                .Set("avatar", newInfo.Avatar)
+                .Set("date_of_birth", newInfo.DateOfBirth)
+                .Set("setting", newInfo.Setting);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
+
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After 
+            };
+
+            var updatedUser = collection.FindOneAndUpdate(filter, update, options);
+            return updatedUser.GetInfo();
+        }
         public StudySetPublic GetOneStudySetPublic(string userId, string setId)
         {
             User user = FindById(userId);

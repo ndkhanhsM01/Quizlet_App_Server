@@ -22,6 +22,26 @@ namespace Quizlet_App_Server.Models
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
+
+        public void UpdateInfo(InfoPersonal newInfo)
+        {
+            this.UserName = newInfo.UserName;
+            this.Email = newInfo.Email;
+            this.Avatar = newInfo.Avatar;
+            this.DateOfBirth = newInfo.DateOfBirth;
+            this.Setting = newInfo.Setting;
+        }
+        public InfoPersonal GetInfo()
+        {
+            return new InfoPersonal()
+            {
+                UserName = this.UserName,
+                Email = this.Email,
+                Avatar = this.Avatar,
+                DateOfBirth = this.DateOfBirth,
+                Setting = this.Setting
+            };
+        }
     }
 
     [System.Serializable]
@@ -75,5 +95,15 @@ namespace Quizlet_App_Server.Models
             this.Documents = user.Documents;
             this.Setting = user.Setting;
         }
+    }
+
+    [System.Serializable]
+    public class InfoPersonal
+    {
+        [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
+        [BsonElement("email")] public string Email { get; set; } = string.Empty;
+        [BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
+        [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
+        [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
     }
 }
