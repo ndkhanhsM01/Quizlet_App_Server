@@ -84,11 +84,25 @@ namespace Quizlet_App_Server.Src.Controllers
                 return BadRequest("Not found folder in user's document");
             }
 
+            List<StudySet> tempList = new List<StudySet>();
             foreach(var s in newSets)
             {
-                folder.AddNewSet(s);
+                if (s.Id.IsNullOrEmpty())
+                {
+                    StudySet newSet = new StudySet(s);
+                    tempList.Add(newSet);
+                    continue;
+                }
+
+                StudySet setExisting = folder.StudySets.Find(set => set.Id.Equals(s.Id));
+                if (setExisting != null)
+                {
+                    setExisting.UpdateInfo(s);
+                    tempList.Add(setExisting);
+                }
             }
 
+            folder.StudySets = tempList;
             userService.UpdateDocumentsUser(userExisting);
 
             UserRespone respone = new UserRespone(userExisting);
@@ -112,22 +126,24 @@ namespace Quizlet_App_Server.Src.Controllers
 
             var allSet = userExisting.Documents.GetAllSets();
             int countAdded = 0;
+            List<StudySet> tempList = new List<StudySet>();
             foreach (var set in allSet)
             {
-
                 if (idSetExisting.Contains(set.Id))
                 {
                     if (set.IdFolderOwner.IsNullOrEmpty())
                     {
                         userExisting.Documents.StudySets.Remove(set);
                     }
-                    folder.AddNewSet(set);
+                    //folder.AddNewSet(set);
+                    tempList.Add(set);
                     countAdded++;
                 }
 
                 if (countAdded == idSetExisting.Count) break;
             }
 
+            folder.StudySets = tempList;
             userService.UpdateDocumentsUser(userExisting);
 
             UserRespone respone = new UserRespone(userExisting);

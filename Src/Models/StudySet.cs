@@ -47,11 +47,21 @@ namespace Quizlet_App_Server.Models
             cardDTO.IdSetOwner = this.Id;
             Cards.Add(new FlashCard(cardDTO));
         }
+        public void UpdateInfo(StudySetDTO dto)
+        {
+            this.Id = this.Id;
+            this.TimeCreated = this.TimeCreated;
+            this.Name = dto.Name;
+            this.IdFolderOwner = dto.IdFolderOwner;
+            this.IsPublic = dto.IsPublic;
+            this.Description = dto.Description;
+        }
     }
 
     [System.Serializable]
     public class StudySetDTO
     {
+        public string Id { get; set; } = string.Empty;
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
         [BsonElement("is_public")] public bool IsPublic { get; set; } = false;
