@@ -7,6 +7,7 @@ using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Models.Helper;
 using Quizlet_App_Server.Services;
 using Quizlet_App_Server.Utility;
+using System.Security.Cryptography.Xml;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -49,6 +50,22 @@ namespace Quizlet_App_Server.Controllers
                 return BadRequest("Password incorrect");
             }
 
+            // detect new version of achievement
+            Achievement currentAchievement = existingUser.Achievement;
+            Achievement configAchievement = service.GetConfigData<Achievement>("Achievement");
+
+            if(configAchievement != null && currentAchievement != null &&
+                currentAchievement.TaskList.Count < configAchievement.TaskList.Count)
+            {
+                int oldCount = currentAchievement.TaskList.Count;
+                for(int i=oldCount; i<configAchievement.TaskList.Count; i++)
+                {
+                    currentAchievement.TaskList.Add(configAchievement.TaskList[i]);
+                }
+
+                existingUser.Achievement = service.UpdateAchievement(existingUser.Id, currentAchievement).Achievement;
+            }
+
             //string token = service.GenerateToken(existingUser);
             return Ok(existingUser);
         }
@@ -75,11 +92,68 @@ namespace Quizlet_App_Server.Controllers
 
             // insert new user's information
             newUser.SeqId = service.GetNextID();
+            newUser.Achievement = service.GetConfigData<Achievement>("Achievement");
             collection.InsertOne(newUser);
 
             return Ok(newUser);
         }
+        [HttpPost]
+        public ActionResult<StreakRespone> DetectContinueStudy(string userId, long timeDetect)
+        {
+            var existingUser = service.FindById(userId);
 
+            if (existingUser == null)
+            {
+                return NotFound("User ID not found");
+            }
+
+            // caculate streak
+            if(existingUser.Streak == null || existingUser.Streak.LastTime <= 0)
+            {
+                existingUser.Streak = new Streak();
+            }
+            else
+            {
+                var lastTimeStudy = TimeHelper.ToDateTime(existingUser.Streak.LastTime);
+                var newTimeDetect = TimeHelper.ToDateTime((int)timeDetect);
+
+                lastTimeStudy = new DateTime(lastTimeStudy.Year, lastTimeStudy.Month, lastTimeStudy.Day);
+                newTimeDetect = new DateTime(newTimeDetect.Year, newTimeDetect.Month, newTimeDetect.Day);
+
+                TimeSpan timeOffset = newTimeDetect - lastTimeStudy;
+                if(timeOffset.TotalDays == 1)
+                {
+                    existingUser.UpdateStreak();
+                }
+                else if(timeOffset.TotalDays > 1)
+                {
+                    existingUser.Streak.CurrentStreak = 1;
+                }
+
+            }
+
+            // update last time caculate
+            existingUser.Streak.LastTime = timeDetect;
+
+            // update in database
+            var update = Builders<User>.Update
+                .Set("streak", existingUser.Streak)
+                .Set("achievement", existingUser.Achievement);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
+
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+            var updatedUser = collection.FindOneAndUpdate(filter, update, options);
+            StreakRespone result = new StreakRespone()
+            {
+                Streak = updatedUser.Streak,
+                Achievement= updatedUser.Achievement
+            };
+
+            return new ActionResult<StreakRespone>(result);
+        }
         // PUT api/<UserController>/5
         [HttpPut]
         public ActionResult<User> ChangePassword(string id, [FromBody] ChangePasswordRequest request)

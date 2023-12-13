@@ -21,6 +21,8 @@ namespace Quizlet_App_Server.Models
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
+        [BsonElement("streak")] public Streak Streak { get; set; } = new Streak();
+        [BsonElement("achievement")] public Achievement Achievement { get; set; } = new Achievement();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
 
         public void UpdateInfo(InfoPersonal newInfo)
@@ -30,6 +32,22 @@ namespace Quizlet_App_Server.Models
             this.Avatar = newInfo.Avatar;
             this.DateOfBirth = newInfo.DateOfBirth;
             this.Setting = newInfo.Setting;
+        }
+
+        public void UpdateStreak()
+        {
+            if (Streak == null) return;
+
+            Streak.CurrentStreak++;
+
+            foreach(var task in Achievement.TaskList)
+            {
+                if (!task.Type.Equals(TaskType.STREAK)) continue;
+
+                if (task.Progress >= task.Condition) continue;
+
+                task.Progress = Streak.CurrentStreak;
+            }
         }
         public InfoPersonal GetInfo()
         {

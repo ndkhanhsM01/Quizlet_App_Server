@@ -6,6 +6,7 @@ using Quizlet_App_Server.Models.Helper;
 using Quizlet_App_Server.Utility;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace Quizlet_App_Server.Services
@@ -55,6 +56,17 @@ namespace Quizlet_App_Server.Services
             var result = sequenceCollection.FindOneAndUpdate<UserSequence>(filter, update, options);
             return result.Value;
         }
+
+        public T GetConfigData<T>(string specialName) where T: Configurable
+        {
+            var database = client.GetDatabase(VariableConfig.DatabaseName);
+            var configCollection = database.GetCollection<T>(VariableConfig.Collection_Configure);
+
+            var filter = Builders<T>.Filter.Eq(x => x.SpecialName, specialName);
+            var existingDocument = configCollection.Find(filter).FirstOrDefault();
+
+            return existingDocument;
+        }
         public User FindBySeqId(int seqId)
         {
             var filter = Builders<User>.Filter.Eq(x => x.SeqId, seqId);
@@ -102,6 +114,19 @@ namespace Quizlet_App_Server.Services
             var updatedUser = collection.FindOneAndUpdate(filter, update, options);
             return updatedUser.GetInfo();
         }
+        public User UpdateAchievement(string userId, Achievement newAchievement)
+        {
+            var update = Builders<User>.Update.Set("achievement", newAchievement);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
+
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+
+            var updatedUser = collection.FindOneAndUpdate(filter, update, options);
+            return updatedUser;
+        }
         public StudySetPublic GetOneStudySetPublic(string userId, string setId)
         {
             User user = FindById(userId);
@@ -135,42 +160,6 @@ namespace Quizlet_App_Server.Services
             }
 
             return result;
-        }
-        public List<FlashCard> FindAllCardsSameSet(string idUser, string idSet)
-        {
-            User user = FindById(idUser);
-            if(user == null)
-            {
-                return null;
-            }
-
-            List<FlashCard> allCards = user.Documents.FlashCards;
-            List<FlashCard> listRespone = new List<FlashCard>();
-            foreach(var card in allCards)
-            {
-                if (card.IdSetOwner.Equals(idSet))
-                    listRespone.Add(card);
-            }
-
-            return listRespone;
-        }
-        public List<StudySet> FindAllSetsSameFolder(string idUser, string idFolder)
-        {
-            User user = FindById(idUser);
-            if (user == null)
-            {
-                return null;
-            }
-
-            List<StudySet> allSets = user.Documents.StudySets;
-            List<StudySet> listRespone = new List<StudySet>();
-            foreach (var set in allSets)
-            {
-                if (set.IdFolderOwner.Equals(idFolder))
-                    listRespone.Add(set);
-            }
-
-            return listRespone;
         }
         // To generate token
         //public string GenerateToken(User user)

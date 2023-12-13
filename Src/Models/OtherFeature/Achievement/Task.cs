@@ -1,0 +1,34 @@
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace Quizlet_App_Server.Models
+{
+    [BsonIgnoreExtraElements]
+    public class Task
+    {
+        [BsonElement("task_name")] public string TaskName { get; set; } = string.Empty;
+        [BsonElement("type")] public string Type { get; set; } = TaskType.None;
+        [BsonElement("status")] public TaskStatus Status 
+        {
+            get
+            {
+                if (Progress >= Condition) return TaskStatus.Completed;
+                else if (Progress <= 0) return TaskStatus.NONE;
+                else return TaskStatus.InProgress;
+            }
+        }
+        [BsonElement("description")] public string Description { get; set; } = string.Empty;
+        [BsonElement("condition")] public int Condition { get; set; } = 0;
+        [BsonElement("progress")] public int Progress { get; set; } = 0;
+    }
+    public enum TaskStatus
+    {
+        NONE = 0,
+        InProgress = 1,
+        Completed = 2
+    }
+    public static class TaskType
+    {
+        public const string None = "None";
+        public const string STREAK = "Streak";
+    }
+}

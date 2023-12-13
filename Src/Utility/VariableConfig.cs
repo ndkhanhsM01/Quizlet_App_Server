@@ -6,5 +6,6 @@
         public const string ConnectionString = "mongodb+srv://Admin_ndkhanhs:5xRWMqf08L88sEZF@ndkhanhsfirst.xdi6ojo.mongodb.net/?retryWrites=true&w=majority";
         public const string Collection_Users = "users";
         public const string Collection_UserSequence = "UserSequence";
+        public const string Collection_Configure = "Configure";
     }
 }
