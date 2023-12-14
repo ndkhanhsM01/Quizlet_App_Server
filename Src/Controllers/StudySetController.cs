@@ -17,7 +17,26 @@ namespace Quizlet_App_Server.Controllers
         {
             userService = new(mongoClient, config);
         }
+        [HttpGet]
+        public ActionResult<StudySetShareView> ShareView(string userId, string setId)
+        {
+            var user = userService.FindById(userId);
 
+            if(user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var setInfo = user.Documents.GetAllSets().Find(s => s.Id.Equals(setId));
+            if(setInfo == null)
+            {
+                return NotFound("Set not found in user's document");
+            }
+
+            StudySetShareView setSharing = new StudySetShareView(userId, user.UserName, user.Avatar, setInfo);
+            return new ActionResult<StudySetShareView>(setSharing);
+
+        }
         [HttpPost]
         public ActionResult<UserRespone> Create(string userId, [FromBody] StudySetDTO req)
         {

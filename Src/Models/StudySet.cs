@@ -68,4 +68,27 @@ namespace Quizlet_App_Server.Models
         [BsonElement("description")] public string Description { get; set; } = string.Empty;
         [BsonElement("all_new_cards")] public List<FlashCardDTO> AllNewCards { get; set; } = new List<FlashCardDTO>();
     }
+
+    [System.Serializable]
+    public class StudySetShareView
+    {
+        public string IdOwner { get; set; } = string.Empty;
+        public string NameOwner { get; set; } = string.Empty;
+        public string AvatarOwner { get; set;} = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        public string Description { get; set; } = string.Empty;
+        public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
+
+        public StudySetShareView(string idOwner, string nameOwner, string avatarOwner, StudySet set)
+        {
+            IdOwner = idOwner;
+            NameOwner = nameOwner;
+            AvatarOwner = avatarOwner;
+            Name = set.Name;
+            TimeCreated = set.TimeCreated;
+            Description = set.Description;
+            Cards = set.Cards;
+        }
+    }
 }
