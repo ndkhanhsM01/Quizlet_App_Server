@@ -51,20 +51,25 @@ namespace Quizlet_App_Server.Controllers
             }
 
             // detect new version of achievement
-            Achievement currentAchievement = existingUser.Achievement;
+            Achievement currentAchievement = existingUser.Achievement != null 
+                                            ? existingUser.Achievement
+                                            : new Achievement();
             Achievement configAchievement = service.GetConfigData<Achievement>("Achievement");
 
-            if(configAchievement != null && currentAchievement != null &&
-                currentAchievement.TaskList.Count < configAchievement.TaskList.Count)
-            {
-                int oldCount = currentAchievement.TaskList.Count;
-                for(int i=oldCount; i<configAchievement.TaskList.Count; i++)
-                {
-                    currentAchievement.TaskList.Add(configAchievement.TaskList[i]);
-                }
+            List<Models.Task> newTasks = new List<Models.Task>();
 
-                existingUser.Achievement = service.UpdateAchievement(existingUser.Id, currentAchievement).Achievement;
+            foreach(var configTask in configAchievement.TaskList)
+            {
+                var taskOfUser = currentAchievement.TaskList.Find(t => t.Id == configTask.Id);
+
+                if(taskOfUser == null)
+                {
+                    newTasks.Add(configTask);
+                }
             }
+
+            currentAchievement.TaskList.AddRange(newTasks);
+            existingUser.Achievement = service.UpdateAchievement(existingUser.Id, currentAchievement).Achievement;
 
             //string token = service.GenerateToken(existingUser);
             return Ok(existingUser);
