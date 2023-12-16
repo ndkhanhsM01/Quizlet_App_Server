@@ -74,13 +74,14 @@ namespace Quizlet_App_Server.Models
     {
         public string IdOwner { get; set; } = string.Empty;
         public string NameOwner { get; set; } = string.Empty;
-        public string AvatarOwner { get; set;} = string.Empty;
+        //public string AvatarOwner { get; set;} = string.Empty;
+        public List<byte> AvatarOwner { get; set;} = new List<byte>();
         public string Name { get; set; } = string.Empty;
         public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         public string Description { get; set; } = string.Empty;
         public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
 
-        public StudySetShareView(string idOwner, string nameOwner, string avatarOwner, StudySet set)
+        public StudySetShareView(string idOwner, string nameOwner, List<byte> avatarOwner, StudySet set)
         {
             IdOwner = idOwner;
             NameOwner = nameOwner;
