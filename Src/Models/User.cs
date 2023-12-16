@@ -120,11 +120,11 @@ namespace Quizlet_App_Server.Models
     [System.Serializable]
     public class InfoPersonal
     {
-        [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
-        [BsonElement("email")] public string Email { get; set; } = string.Empty;
+        [BsonElement("user_name")] public string? UserName { get; set; } = string.Empty;
+        [BsonElement("email")] public string? Email { get; set; } = string.Empty;
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
-        [BsonElement("avatar")] public List<byte> Avatar { get; set; } = new List<byte>();
-        [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
-        [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
+        [BsonElement("avatar")] public List<byte>? Avatar { get; set; } = new List<byte>();
+        [BsonElement("date_of_birth")] public string? DateOfBirth { get; set; } = string.Empty;
+        [BsonElement("setting")] public UserSetting? Setting { get; set; } = new UserSetting();
     }
 }

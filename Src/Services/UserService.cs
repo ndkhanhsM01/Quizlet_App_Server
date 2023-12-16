@@ -98,12 +98,33 @@ namespace Quizlet_App_Server.Services
         }
         public InfoPersonal UpdateInfoUser(string userId, InfoPersonal newInfo)
         {
-            var update = Builders<User>.Update
-                .Set("user_name", newInfo.UserName)
-                .Set("email", newInfo.Email)
-                .Set("avatar", newInfo.Avatar)
-                .Set("date_of_birth", newInfo.DateOfBirth)
-                .Set("setting", newInfo.Setting);
+            var updateDefinitionList = new List<UpdateDefinition<User>>();
+
+            if (!newInfo.UserName.IsNullOrEmpty())
+            {
+                updateDefinitionList.Add(Builders<User>.Update.Set("user_name", newInfo.UserName));
+            }
+            if (!newInfo.Email.IsNullOrEmpty())
+            {
+                updateDefinitionList.Add(Builders<User>.Update.Set("email", newInfo.Email));
+            }
+            if (newInfo.Avatar != null)
+            {
+                updateDefinitionList.Add(Builders<User>.Update.Set("avatar", newInfo.Avatar));
+            }
+            if (!newInfo.DateOfBirth.IsNullOrEmpty())
+            {
+                updateDefinitionList.Add(Builders<User>.Update.Set("date_of_birth", newInfo.DateOfBirth));
+            }
+            if (newInfo.Setting != null)
+            {
+                updateDefinitionList.Add(Builders<User>.Update.Set("setting", newInfo.Setting));
+            }
+
+            var combinedUpdate = Builders<User>.Update.Combine(updateDefinitionList);
+
+
+
             var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
 
             var options = new FindOneAndUpdateOptions<User>
@@ -111,7 +132,7 @@ namespace Quizlet_App_Server.Services
                 ReturnDocument = ReturnDocument.After 
             };
 
-            var updatedUser = collection.FindOneAndUpdate(filter, update, options);
+            var updatedUser = collection.FindOneAndUpdate(filter, combinedUpdate, options);
             return updatedUser.GetInfo();
         }
         public User UpdateAchievement(string userId, Achievement newAchievement)
