@@ -50,4 +50,27 @@ namespace Quizlet_App_Server.Models
         [BsonElement("description")] public string Description { get; set; } = string.Empty;
         [BsonElement("study_sets")] public List<StudySet> StudySets { get; set; } = new List<StudySet>();
     }
+
+    [System.Serializable]
+    public class FolderShareView
+    {
+        public string IdOwner = string.Empty;
+        public string NameOwner { get; set; } = string.Empty;
+        public string AvatarOwner { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        public string Description { get; set; } = string.Empty;
+        public List<StudySet> StudySets { get; set; } = new List<StudySet>();
+
+        public FolderShareView(string idOwner, string nameOwner, string avatarOwner, Folder folder)
+        {
+            IdOwner = idOwner;
+            NameOwner = nameOwner;
+            AvatarOwner = avatarOwner;
+            Name = folder.Name;
+            TimeCreated = folder.TimeCreated;
+            Description = folder.Description;
+            StudySets = folder.StudySets;
+        }
+    }
 }

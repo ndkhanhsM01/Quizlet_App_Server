@@ -18,6 +18,26 @@ namespace Quizlet_App_Server.Src.Controllers
         {
             userService = new(mongoClient, config);
         }
+        [HttpGet]
+        public ActionResult<FolderShareView> ShareView(string userId, string folderId)
+        {
+            var user = userService.FindById(userId);
+
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var folderInfo = user.Documents.Folders.Find(f => f.Id.Equals(folderId));
+            if (folderId == null)
+            {
+                return NotFound("folder not found in user's document");
+            }
+
+            FolderShareView folderSharing = new FolderShareView(userId, user.UserName, user.Avatar, folderInfo);
+            return new ActionResult<FolderShareView>(folderSharing);
+
+        }
         [HttpPost]
         public ActionResult<UserRespone> Create(string userId, [FromBody] FolderDTO req)
         {
