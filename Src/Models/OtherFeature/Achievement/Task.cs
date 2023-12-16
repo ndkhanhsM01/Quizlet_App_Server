@@ -31,5 +31,6 @@ namespace Quizlet_App_Server.Models
     {
         public const string None = "None";
         public const string STREAK = "Streak";
+        public const string STUDY = "Study";
     }
 }
