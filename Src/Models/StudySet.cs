@@ -81,11 +81,11 @@ namespace Quizlet_App_Server.Models
         public string Description { get; set; } = string.Empty;
         public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
 
-        public StudySetShareView(string idOwner, string nameOwner, List<int> avatarOwner, StudySet set)
+        public StudySetShareView(string idOwner, string nameOwner, /*List<int> avatarOwner,*/ StudySet set)
         {
             IdOwner = idOwner;
             NameOwner = nameOwner;
-            AvatarOwner = avatarOwner;
+            //AvatarOwner = avatarOwner;
             Name = set.Name;
             TimeCreated = set.TimeCreated;
             Description = set.Description;

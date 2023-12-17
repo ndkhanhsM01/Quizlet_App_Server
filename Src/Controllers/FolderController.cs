@@ -34,7 +34,7 @@ namespace Quizlet_App_Server.Src.Controllers
                 return NotFound("folder not found in user's document");
             }
 
-            FolderShareView folderSharing = new FolderShareView(userId, user.UserName, user.Avatar, folderInfo);
+            FolderShareView folderSharing = new FolderShareView(userId, user.UserName/*, user.Avatar*/, folderInfo);
             return new ActionResult<FolderShareView>(folderSharing);
 
         }

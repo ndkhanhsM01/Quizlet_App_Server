@@ -24,13 +24,13 @@ namespace Quizlet_App_Server.Models
         [BsonElement("streak")] public Streak Streak { get; set; } = new Streak();
         [BsonElement("achievement")] public Achievement Achievement { get; set; } = new Achievement();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
-        [BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
+        //[BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
 
         public void UpdateInfo(InfoPersonal newInfo)
         {
             this.UserName = newInfo.UserName;
             this.Email = newInfo.Email;
-            this.Avatar = newInfo.Avatar;
+            //this.Avatar = newInfo.Avatar;
             this.DateOfBirth = newInfo.DateOfBirth;
             this.Setting = newInfo.Setting;
         }
@@ -56,7 +56,7 @@ namespace Quizlet_App_Server.Models
             {
                 UserName = this.UserName,
                 Email = this.Email,
-                Avatar = this.Avatar,
+                //Avatar = this.Avatar,
                 DateOfBirth = this.DateOfBirth,
                 Setting = this.Setting
             };
@@ -100,7 +100,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
-        [BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
+        //[BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
 
         public UserRespone(User user)
         {
@@ -109,7 +109,7 @@ namespace Quizlet_App_Server.Models
             this.LoginName = user.LoginName;
             this.UserName = user.UserName;
             this.Email = user.Email;
-            this.Avatar = user.Avatar;
+            //this.Avatar = user.Avatar;
             this.DateOfBirth = user.DateOfBirth;
             this.TimeCreated = user.TimeCreated;
             this.Documents = user.Documents;
@@ -125,6 +125,6 @@ namespace Quizlet_App_Server.Models
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
         [BsonElement("date_of_birth")] public string? DateOfBirth { get; set; } = string.Empty;
         [BsonElement("setting")] public UserSetting? Setting { get; set; } = new UserSetting();
-        [BsonElement("avatar")] public List<int>? Avatar { get; set; } = new List<int>();
+        //[BsonElement("avatar")] public List<int>? Avatar { get; set; } = new List<int>();
     }
 }

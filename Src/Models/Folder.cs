@@ -63,11 +63,11 @@ namespace Quizlet_App_Server.Models
         public string Description { get; set; } = string.Empty;
         public List<StudySet> StudySets { get; set; } = new List<StudySet>();
 
-        public FolderShareView(string idOwner, string nameOwner, List<int> avatarOwner, Folder folder)
+        public FolderShareView(string idOwner, string nameOwner/*, List<int> avatarOwner*/, Folder folder)
         {
             IdOwner = idOwner;
             NameOwner = nameOwner;
-            AvatarOwner = avatarOwner;
+            //AvatarOwner = avatarOwner;
             Name = folder.Name;
             TimeCreated = folder.TimeCreated;
             Description = folder.Description;

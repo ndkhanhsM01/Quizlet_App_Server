@@ -37,7 +37,7 @@ namespace Quizlet_App_Server.Controllers
                 return NotFound("Set not found in user's document");
             }
 
-            StudySetShareView setSharing = new StudySetShareView(userId, user.UserName, user.Avatar, setInfo);
+            StudySetShareView setSharing = new StudySetShareView(userId, user.UserName/*, user.Avatar*/, setInfo);
             return new ActionResult<StudySetShareView>(setSharing);
 
         }

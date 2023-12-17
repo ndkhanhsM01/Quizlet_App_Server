@@ -108,10 +108,10 @@ namespace Quizlet_App_Server.Services
             {
                 updateDefinitionList.Add(Builders<User>.Update.Set("email", newInfo.Email));
             }
-            if (newInfo.Avatar != null)
+/*            if (newInfo.Avatar != null)
             {
                 updateDefinitionList.Add(Builders<User>.Update.Set("avatar", newInfo.Avatar));
-            }
+            }*/
             if (!newInfo.DateOfBirth.IsNullOrEmpty())
             {
                 updateDefinitionList.Add(Builders<User>.Update.Set("date_of_birth", newInfo.DateOfBirth));
