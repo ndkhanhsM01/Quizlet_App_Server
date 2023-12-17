@@ -5,23 +5,22 @@ namespace Quizlet_App_Server.Models
 {
     public class StudySetPublic
     {
-        [BsonElement("id_owner")] public string id_owner { get; set;} = string.Empty;
-        [BsonElement("name")] public string Name { get; set; } = string.Empty;
+        [BsonElement("id")] public string Id { get; set;} = string.Empty;
+        [BsonElement("id_owner")] public string IdOwner { get; set;} = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        [BsonElement("name")] public string Name { get; set; } = string.Empty;
+        [BsonElement("description")] public string Description { get; set; } = string.Empty;
         //[BsonElement("id_folder_owner")] public string IdFolderOwner { get; set; } = string.Empty;
         //[BsonElement("is_public")] public bool IsPublic { get; set; } = false;
         [BsonElement("all_cards")] public List<FlashCard> AllCards { get; set; } = new List<FlashCard>();
-        public StudySetPublic(string idOwner, StudySet set, Documents documents) 
+        public StudySetPublic(string idOwner, StudySet set) 
         {
-            List<FlashCard> allCardOfSet = documents.FlashCards.FindAll(card => card.IdSetOwner.Equals(set.Id));
-
-            if (allCardOfSet != null)
-            {
-                this.id_owner = idOwner;
-                this.Name = set.Name;
-                this.TimeCreated = set.TimeCreated;
-                this.AllCards = allCardOfSet;
-            }
+            this.IdOwner = idOwner;
+            this.Id = set.Id;
+            this.Name = set.Name;
+            this.TimeCreated = set.TimeCreated;
+            this.Description = set.Description;
+            this.AllCards = set.Cards;
         }
     }
 }

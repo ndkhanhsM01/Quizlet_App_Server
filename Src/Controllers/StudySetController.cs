@@ -4,6 +4,8 @@ using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.Services;
+using Quizlet_App_Server.Utility;
 
 namespace Quizlet_App_Server.Controllers
 {
@@ -12,10 +14,12 @@ namespace Quizlet_App_Server.Controllers
     public class StudySetController : ControllerExtend<User>
     {
         protected readonly UserService userService;
+        protected readonly SetPublicService setPublicService;
         public StudySetController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config) 
             : base(setting, mongoClient)
         {
             userService = new(mongoClient, config);
+            setPublicService = new(mongoClient, config);
         }
         [HttpGet]
         public ActionResult<StudySetShareView> ShareView(string userId, string setId)
@@ -71,6 +75,50 @@ namespace Quizlet_App_Server.Controllers
         
             UserRespone respone = new UserRespone(userExisting);
             return new ActionResult<UserRespone>(respone);
+        }
+        [HttpPost]
+        public ActionResult EnablePublic(string userId, string setId)
+        {
+            User userExisting = userService.FindById(userId);
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            StudySet studySet = userExisting.Documents.GetAllSets().Find(s => s.Id.Equals(setId));
+            if(studySet == null)
+            {
+                return NotFound("Study set not found in user's document");
+            }
+
+            studySet.IsPublic = true;
+            userService.UpdateDocumentsUser(userExisting);
+
+            var result = setPublicService.InsertOne(userId, studySet);
+            if (result != null) return Ok("Enable public successful");
+            else return BadRequest("Something wrong");
+        }
+        [HttpPost]
+        public ActionResult DisablePublic(string userId, string setId)
+        {
+            User userExisting = userService.FindById(userId);
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            StudySet studySet = userExisting.Documents.GetAllSets().Find(s => s.Id.Equals(setId));
+            if (studySet == null)
+            {
+                return NotFound("Study set not found in user's document");
+            }
+
+            studySet.IsPublic = false;
+            userService.UpdateDocumentsUser(userExisting);
+
+            var result = setPublicService.Remove(studySet.Id);
+            if (result > 0) return Ok("Disable public successful");
+            else return BadRequest("Something wrong");
         }
 
         [HttpPut]

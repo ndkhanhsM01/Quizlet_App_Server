@@ -7,5 +7,6 @@
         public const string Collection_Users = "users";
         public const string Collection_UserSequence = "UserSequence";
         public const string Collection_Configure = "Configure";
+        public const string Collection_StudySetPublic = "StudySetPublic";
     }
 }

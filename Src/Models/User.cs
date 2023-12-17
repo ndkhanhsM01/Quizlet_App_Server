@@ -18,13 +18,13 @@ namespace Quizlet_App_Server.Models
         [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
         [BsonElement("email")] public string Email { get; set; } = string.Empty;
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
-        [BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
         [BsonElement("streak")] public Streak Streak { get; set; } = new Streak();
         [BsonElement("achievement")] public Achievement Achievement { get; set; } = new Achievement();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
+        [BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
 
         public void UpdateInfo(InfoPersonal newInfo)
         {
@@ -96,11 +96,11 @@ namespace Quizlet_App_Server.Models
         [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
         [BsonElement("email")] public string Email { get; set; } = string.Empty;
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
-        [BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
+        [BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
 
         public UserRespone(User user)
         {
@@ -123,8 +123,8 @@ namespace Quizlet_App_Server.Models
         [BsonElement("user_name")] public string? UserName { get; set; } = string.Empty;
         [BsonElement("email")] public string? Email { get; set; } = string.Empty;
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
-        [BsonElement("avatar")] public List<int>? Avatar { get; set; } = new List<int>();
         [BsonElement("date_of_birth")] public string? DateOfBirth { get; set; } = string.Empty;
         [BsonElement("setting")] public UserSetting? Setting { get; set; } = new UserSetting();
+        [BsonElement("avatar")] public List<int>? Avatar { get; set; } = new List<int>();
     }
 }
