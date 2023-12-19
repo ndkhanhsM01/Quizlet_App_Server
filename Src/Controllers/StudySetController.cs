@@ -72,7 +72,19 @@ namespace Quizlet_App_Server.Controllers
             }
 
             userService.UpdateDocumentsUser(userExisting);
-        
+
+            // update achievement
+            userExisting.CollectionStorage.CreateSetCount++;
+            userService.UpdateCollectionStorage(userExisting);
+
+            var task = userExisting.Achievement.TaskList.Find(t => t.Id == 204);
+            if(task != null && userExisting.CollectionStorage.CreateSetCount == 1)
+            {
+                task.Progress = 1;
+                userService.UpdateAchievement(userId, userExisting.Achievement);
+            }
+            //--
+
             UserRespone respone = new UserRespone(userExisting);
             return new ActionResult<UserRespone>(respone);
         }

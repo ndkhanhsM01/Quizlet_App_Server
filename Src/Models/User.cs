@@ -20,6 +20,7 @@ namespace Quizlet_App_Server.Models
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        [BsonElement("collection_storage")] public UserCollection? CollectionStorage { get; set; } = new UserCollection();
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
         [BsonElement("streak")] public Streak Streak { get; set; } = new Streak();
         [BsonElement("achievement")] public Achievement Achievement { get; set; } = new Achievement();
@@ -126,5 +127,11 @@ namespace Quizlet_App_Server.Models
         [BsonElement("date_of_birth")] public string? DateOfBirth { get; set; } = string.Empty;
         [BsonElement("setting")] public UserSetting? Setting { get; set; } = new UserSetting();
         //[BsonElement("avatar")] public List<int>? Avatar { get; set; } = new List<int>();
+    }
+
+    [System.Serializable]
+    public class UserCollection
+    {
+        [BsonElement("create_set_count")] public int CreateSetCount { get; set; } = 0;
     }
 }

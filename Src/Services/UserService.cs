@@ -96,6 +96,14 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
+        public UpdateResult UpdateCollectionStorage(User existingUser)
+        {
+            var update = Builders<User>.Update.Set("collection_storage", existingUser.CollectionStorage);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, existingUser.Id);
+            var result = collection.UpdateOne(filter, update);
+
+            return result;
+        }
         public InfoPersonal UpdateInfoUser(string userId, InfoPersonal newInfo)
         {
             var updateDefinitionList = new List<UpdateDefinition<User>>();
