@@ -61,6 +61,7 @@ namespace Quizlet_App_Server.Models
         public string Name { get; set; } = string.Empty;
         public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         public string Description { get; set; } = string.Empty;
+        public int? CountSet { get => StudySets != null ? StudySets.Count : 0; }
         public List<StudySet> StudySets { get; set; } = new List<StudySet>();
 
         public FolderShareView(string idOwner, string nameOwner/*, List<int> avatarOwner*/, Folder folder)

@@ -98,6 +98,7 @@ namespace Quizlet_App_Server.Models
         public List<int> AvatarOwner { get; set;} = new List<int>();
         public string Name { get; set; } = string.Empty;
         public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        public int? CountTerm { get => Cards != null ? Cards.Count : 0; }
         public string Description { get; set; } = string.Empty;
         public List<FlashCard> Cards { get; set; } = new List<FlashCard>();
 

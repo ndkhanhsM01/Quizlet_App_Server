@@ -19,9 +19,9 @@ namespace Quizlet_App_Server.Src.Services
             this.config = config;
         }
 
-        public StudySetPublic InsertOne(string idOwner, StudySet setInfo)
+        public StudySetPublic InsertOne(string idOwner, string nameOwner, StudySet setInfo)
         {
-            StudySetPublic newDocument = new StudySetPublic(idOwner, setInfo);
+            StudySetPublic newDocument = new StudySetPublic(idOwner, nameOwner, setInfo);
             StudySetPublic existingDocument = FindById(setInfo.Id);
 
             if(existingDocument == null)

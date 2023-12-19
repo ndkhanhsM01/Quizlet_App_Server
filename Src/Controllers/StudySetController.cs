@@ -107,7 +107,7 @@ namespace Quizlet_App_Server.Controllers
             studySet.IsPublic = true;
             userService.UpdateDocumentsUser(userExisting);
 
-            var result = setPublicService.InsertOne(userId, studySet);
+            var result = setPublicService.InsertOne(userId, userExisting.UserName, studySet);
             if (result != null) return Ok("Enable public successful");
             else return BadRequest("Something wrong");
         }
