@@ -23,6 +23,18 @@ namespace Quizlet_App_Server.Models
             this.Definition= dto.Definition;
             this.IdSetOwner= dto.IdSetOwner;
         }
+
+        public FlashCard Clone(string newId = null)
+        {
+            FlashCard cardClone = this.MemberwiseClone() as FlashCard;
+
+            if(newId != null)
+            {
+                cardClone.Id = newId;
+            }
+
+            return cardClone;
+        }
         public void UpdateInfo(FlashCardDTO cardDTO)
         {
             this.Id = this.Id;                      // not update id

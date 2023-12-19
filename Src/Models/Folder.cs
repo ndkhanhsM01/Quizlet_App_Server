@@ -48,7 +48,7 @@ namespace Quizlet_App_Server.Models
     {
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("description")] public string Description { get; set; } = string.Empty;
-        [BsonElement("study_sets")] public List<StudySet> StudySets { get; set; } = new List<StudySet>();
+        [BsonElement("study_sets")] public List<StudySet>? StudySets { get; set; } = new List<StudySet>();
     }
 
     [System.Serializable]

@@ -42,6 +42,26 @@ namespace Quizlet_App_Server.Models
                 }
             }
         }
+        public StudySet Clone(string newId = null)
+        {
+            StudySet setClone = this.MemberwiseClone() as StudySet;
+
+            if(newId != null)
+            {
+                setClone.Id = newId;
+                List<FlashCard> newListCard = new List<FlashCard>();
+                foreach(var card in Cards)
+                {
+                    var cardClone = card.Clone(ObjectId.GenerateNewId().ToString());
+                    cardClone.IdSetOwner = newId;
+                    newListCard.Add(cardClone);
+                }
+
+                setClone.Cards = newListCard;
+            }
+
+            return setClone;
+        }
         public void AddNewCard(FlashCardDTO cardDTO)
         {
             cardDTO.IdSetOwner = this.Id;

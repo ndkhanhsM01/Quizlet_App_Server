@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
@@ -131,6 +132,36 @@ namespace Quizlet_App_Server.Controllers
             var result = setPublicService.Remove(studySet.Id);
             if (result > 0) return Ok("Disable public successful");
             else return BadRequest("Something wrong");
+        }
+        [HttpPost]
+        public ActionResult<User> AddToManyFolders(string userId, string setId, [FromBody] List<string> listIdFolders)
+        {
+            User userExisting = userService.FindById(userId);
+            if (userExisting == null)
+            {
+                return NotFound("User not found");
+            }
+
+            StudySet set = userExisting.Documents.GetAllSets().Find(s => s.Id.Equals(setId));
+            if(set == null)
+            {
+                return NotFound("Set not found in user's document");
+            }
+
+            foreach(var folder in userExisting.Documents.Folders)
+            {
+                if (listIdFolders.Contains(folder.Id))
+                {
+                    var setClone = set.Clone(ObjectId.GenerateNewId().ToString());
+
+                    folder.AddNewSet(setClone);
+                    listIdFolders.Remove(folder.Id);
+                }
+            }
+
+            var result = userService.UpdateDocumentsUser(userExisting);
+
+            return new ActionResult<User>(result);  
         }
 
         [HttpPut]

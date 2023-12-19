@@ -20,7 +20,7 @@ namespace Quizlet_App_Server.Controllers
             userService = new(mongoClient, config);
         }
         [AllowAnonymous]
-        private UpdateResult UpdateDocumentsUser(User existingUser)
+        private User UpdateDocumentsUser(User existingUser)
         {
             return userService.UpdateDocumentsUser(existingUser);
         }

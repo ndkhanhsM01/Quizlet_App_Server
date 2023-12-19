@@ -88,11 +88,17 @@ namespace Quizlet_App_Server.Services
 
             return existingUser;
         }
-        public UpdateResult UpdateDocumentsUser(User existingUser)
+        public User UpdateDocumentsUser(User existingUser)
         {
             var update = Builders<User>.Update.Set("documents", existingUser.Documents);
             var filter = Builders<User>.Filter.Eq(x => x.Id, existingUser.Id);
-            var result = collection.UpdateOne(filter, update);
+
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+
+            var result = collection.FindOneAndUpdate(filter, update, options);
 
             return result;
         }
