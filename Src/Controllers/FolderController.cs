@@ -145,22 +145,27 @@ namespace Quizlet_App_Server.Src.Controllers
             }
 
             var allSet = userExisting.Documents.GetAllSets();
-            int countAdded = 0;
+            int countChecking = 0;
             List<StudySet> tempList = new List<StudySet>();
+            tempList.AddRange(folder.StudySets);
             foreach (var set in allSet)
             {
                 if (idSetExisting.Contains(set.Id))
                 {
+                    countChecking++;
+                    // check this set has already exist in folder
+                    if (tempList.Any(s => s.Id.Equals(set.Id))) continue;
+
+                    // remove set in outside
                     if (set.IdFolderOwner.IsNullOrEmpty())
                     {
                         userExisting.Documents.StudySets.Remove(set);
                     }
                     //folder.AddNewSet(set);
                     tempList.Add(set);
-                    countAdded++;
                 }
 
-                if (countAdded == idSetExisting.Count) break;
+                if (countChecking == idSetExisting.Count) break;
             }
 
             folder.StudySets = tempList;
