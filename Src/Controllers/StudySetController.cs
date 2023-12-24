@@ -288,7 +288,10 @@ namespace Quizlet_App_Server.Controllers
             {
                 userExisting.Documents.StudySets.Remove(setReq);
             }
-
+            if (setReq.IsPublic)
+            {
+                setPublicService.Remove(setReq.Id);
+            }
             // update documents
             userService.UpdateDocumentsUser(userExisting);
 
