@@ -152,7 +152,7 @@ namespace Quizlet_App_Server.Controllers
             {
                 if (listIdFolders.Contains(folder.Id))
                 {
-                    var setClone = set.Clone(ObjectId.GenerateNewId().ToString());
+                    var setClone = set.Clone();
 
                     folder.AddNewSet(setClone);
                     listIdFolders.Remove(folder.Id);
