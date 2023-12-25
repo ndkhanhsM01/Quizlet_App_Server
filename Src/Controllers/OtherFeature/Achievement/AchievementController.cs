@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
@@ -38,8 +39,30 @@ namespace Quizlet_App_Server.Controllers
             }
             else
             {
-                existingDocument.TaskList.AddRange(listTask);
-                var update = Builders<Achievement>.Update.Set("task_list", existingDocument.TaskList);
+                //existingDocument.TaskList.AddRange(listTask);
+                foreach(var newTask in listTask)
+                {
+                    var taskExisting = existingDocument.TaskList.Find(t => t.Id == newTask.Id);
+                    if(taskExisting == null)
+                    {
+                        existingDocument.TaskList.Add(newTask);
+                    }
+                    else
+                    {
+                        if(!newTask.TaskName.IsNullOrEmpty())
+                            taskExisting.TaskName = newTask.TaskName;
+                        if(!newTask.Description.IsNullOrEmpty())
+                            taskExisting.Description = newTask.Description;
+                        if(newTask.Condition != null)
+                            taskExisting.Condition = newTask.Condition;
+                        if(newTask.Type != null)
+                            taskExisting.Type = newTask.Type;
+                    }
+                }
+                int version = existingDocument.Version + 1;
+                var update = Builders<Achievement>.Update
+                    .Set("task_list", existingDocument.TaskList)
+                    .Set("version", version);
                 collection.UpdateOne(filter, update);
                 return Ok("Update config success!");
             }

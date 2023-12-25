@@ -50,27 +50,36 @@ namespace Quizlet_App_Server.Controllers
                 return BadRequest("Password incorrect");
             }
 
-            // detect new version of achievement
+            #region detect new version of achievement
             Achievement currentAchievement = existingUser.Achievement != null 
                                             ? existingUser.Achievement
                                             : new Achievement();
             Achievement configAchievement = service.GetConfigData<Achievement>("Achievement");
 
-            List<Models.Task> newTasks = new List<Models.Task>();
-
-            foreach(var configTask in configAchievement.TaskList)
+            if(configAchievement.Version > currentAchievement.Version)
             {
-                var taskOfUser = currentAchievement.TaskList.Find(t => t.Id == configTask.Id);
+                List<Models.Task> newTasks = new List<Models.Task>();
 
-                if(taskOfUser == null)
+                foreach (var configTask in configAchievement.TaskList)
                 {
-                    newTasks.Add(configTask);
+                    var taskOfUser = currentAchievement.TaskList.Find(t => t.Id == configTask.Id);
+
+                    if (taskOfUser == null)
+                    {
+                        newTasks.Add(configTask);
+                    }
+                    else if (taskOfUser.Condition != configTask.Condition)
+                    {
+                        taskOfUser.Condition = configTask.Condition;
+                    }
                 }
+
+                currentAchievement.Version = configAchievement.Version;
+                currentAchievement.TaskList.AddRange(newTasks);
+                existingUser.Achievement = service.UpdateAchievement(existingUser.Id, currentAchievement).Achievement;
+
             }
-
-            currentAchievement.TaskList.AddRange(newTasks);
-            existingUser.Achievement = service.UpdateAchievement(existingUser.Id, currentAchievement).Achievement;
-
+            #endregion
             //string token = service.GenerateToken(existingUser);
             return Ok(existingUser);
         }

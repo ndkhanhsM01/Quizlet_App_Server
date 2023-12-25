@@ -5,9 +5,9 @@ namespace Quizlet_App_Server.Models
     [BsonIgnoreExtraElements]
     public class Task
     {
-        [BsonElement("task_id")] public int Id { get; set; } = 0;
-        [BsonElement("task_name")] public string TaskName { get; set; } = string.Empty;
-        [BsonElement("type")] public string Type { get; set; } = TaskType.None;
+        [BsonElement("task_id")] public int? Id { get; set; } = 0;
+        [BsonElement("task_name")] public string? TaskName { get; set; } = string.Empty;
+        [BsonElement("type")] public string? Type { get; set; } = TaskType.None;
         [BsonElement("status")] public TaskStatus Status 
         {
             get
@@ -17,8 +17,8 @@ namespace Quizlet_App_Server.Models
                 else return TaskStatus.InProgress;
             }
         }
-        [BsonElement("description")] public string Description { get; set; } = string.Empty;
-        [BsonElement("condition")] public int Condition { get; set; } = 0;
+        [BsonElement("description")] public string? Description { get; set; } = string.Empty;
+        [BsonElement("condition")] public int? Condition { get; set; } = 0;
         [BsonElement("progress")] public int Progress { get; set; } = 0;
     }
     public enum TaskStatus
