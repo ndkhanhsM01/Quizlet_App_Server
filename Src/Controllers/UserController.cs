@@ -140,6 +140,31 @@ namespace Quizlet_App_Server.Controllers
             // update last time caculate
             existingUser.Streak.LastTime = timeDetect;
 
+            #region Update achivement
+            int hour = TimeHelper.ToDateTime(timeDetect).Hour;
+            if (hour >= 22 && hour < 24)
+            {
+                var taskLateNight = existingUser.Achievement.TaskList.Find(t => t.Id == 201);
+                if(taskLateNight != null)
+                {
+                    taskLateNight.Progress++;
+                }
+            }
+            else if (hour >= 4 && hour < 7)
+            {
+                var taskEarly = existingUser.Achievement.TaskList.Find(t => t.Id == 202);
+                if (taskEarly != null)
+                {
+                    taskEarly.Progress++;
+                }
+            }
+            
+            var taskStudyCard = existingUser.Achievement.TaskList.Find(t => t.Id == 200);
+            if (taskStudyCard != null)
+            {
+                taskStudyCard.Progress++;
+            }
+            #endregion
             // update in database
             var update = Builders<User>.Update
                 .Set("streak", existingUser.Streak)
