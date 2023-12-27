@@ -81,8 +81,12 @@ namespace Quizlet_App_Server.Controllers
             var task = userExisting.Achievement.TaskList.Find(t => t.Id == 204);
             if(task != null && userExisting.CollectionStorage.CreateSetCount == 1)
             {
-                task.Progress = 1;
+                bool wasCompleted = task.Status >=  Models.TaskStatus.Completed;
+                task.Progress ++;
                 userService.UpdateAchievement(userId, userExisting.Achievement);
+
+                if (!wasCompleted && task.Status >= Models.TaskStatus.Completed)
+                    userService.UpdateScore(userExisting, task.Score ?? 0);
             }
             //--
 

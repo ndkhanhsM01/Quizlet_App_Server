@@ -117,6 +117,37 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
+        public User UpdateScore(User existingUser, int score)
+        {
+            existingUser.CollectionStorage.Score += score;
+            var update = Builders<User>.Update.Set("collection_storage", existingUser.CollectionStorage);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, existingUser.Id);
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+            var result = collection.FindOneAndUpdate(filter, update, options);
+
+            return result;
+        }
+        public User UpdateScore(string userId, int score)
+        {
+            var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
+
+            User existingUser = collection.Find(filter).First();
+            if (existingUser == null) return null;
+
+            existingUser.CollectionStorage.Score += score;
+            var update = Builders<User>.Update.Set("collection_storage", existingUser.CollectionStorage);
+
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+            var result = collection.FindOneAndUpdate(filter, update, options);
+
+            return result;
+        }
         public InfoPersonal UpdateInfoUser(string userId, InfoPersonal newInfo)
         {
             var updateDefinitionList = new List<UpdateDefinition<User>>();

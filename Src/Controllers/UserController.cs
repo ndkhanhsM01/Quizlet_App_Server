@@ -10,6 +10,7 @@ using Quizlet_App_Server.Src.Models.OtherFeature.RankSystem;
 using Quizlet_App_Server.Src.Services;
 using Quizlet_App_Server.Utility;
 using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -168,7 +169,11 @@ namespace Quizlet_App_Server.Controllers
                 var taskLateNight = existingUser.Achievement.TaskList.Find(t => t.Id == 201);
                 if(taskLateNight != null)
                 {
+                    bool wasCompleted = taskLateNight.Status >= Models.TaskStatus.Completed;
                     taskLateNight.Progress++;
+
+                    if (!wasCompleted && taskLateNight.Status >= Models.TaskStatus.Completed)
+                        existingUser.UpdateScore(taskLateNight.Score ?? 0);
                 }
             }
             else if (hour >= 4 && hour < 7)
@@ -176,20 +181,29 @@ namespace Quizlet_App_Server.Controllers
                 var taskEarly = existingUser.Achievement.TaskList.Find(t => t.Id == 202);
                 if (taskEarly != null)
                 {
+                    bool wasCompleted = taskEarly.Status >= Models.TaskStatus.Completed;
                     taskEarly.Progress++;
+
+                    if (!wasCompleted && taskEarly.Status >= Models.TaskStatus.Completed)
+                        existingUser.UpdateScore(taskEarly.Score ?? 0);
                 }
             }
             
             var taskStudyCard = existingUser.Achievement.TaskList.Find(t => t.Id == 200);
             if (taskStudyCard != null)
             {
+                bool wasCompleted = taskStudyCard.Status >= Models.TaskStatus.Completed;
                 taskStudyCard.Progress++;
+
+                if (!wasCompleted && taskStudyCard.Status >= Models.TaskStatus.Completed)
+                    existingUser.UpdateScore(taskStudyCard.Score ?? 0);
             }
             #endregion
             // update in database
             var update = Builders<User>.Update
                 .Set("streak", existingUser.Streak)
-                .Set("achievement", existingUser.Achievement);
+                .Set("achievement", existingUser.Achievement)
+                .Set("collection_storage", existingUser.CollectionStorage);
             var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
 
             var options = new FindOneAndUpdateOptions<User>
@@ -245,8 +259,10 @@ namespace Quizlet_App_Server.Controllers
             return new ActionResult<InfoPersonal>(result);
         }
         [HttpDelete] 
-        public ActionResult DeleteAllUser()
+        public ActionResult DeleteAllUser(string password)
         {
+            if (!password.Equals("qzl_nice_app")) return BadRequest("Wrong password");
+
             long deleteCount = service.DeleteAllUser();
             return Ok($"Deleted: {deleteCount}");
         }

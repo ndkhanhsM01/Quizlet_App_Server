@@ -48,8 +48,21 @@ namespace Quizlet_App_Server.Models
 
                 if (task.Progress >= task.Condition) continue;
 
+                bool wasCompleted = task.Status >= TaskStatus.Completed;
                 task.Progress = Streak.CurrentStreak;
+
+                if(!wasCompleted && task.Status >= TaskStatus.Completed) 
+                    this.CollectionStorage.Score += task.Score ?? 0;
             }
+        }
+        public void UpdateScore(int value)
+        {
+            this.CollectionStorage.Score += value;
+        }
+        public void UpdateScore(int baseValue, int multiple)
+        {
+            int value = baseValue * multiple;
+            this.CollectionStorage.Score += value;
         }
         public InfoPersonal GetInfo()
         {
