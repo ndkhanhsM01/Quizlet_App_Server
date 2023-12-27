@@ -6,6 +6,8 @@ using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Models.Helper;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.Models.OtherFeature.RankSystem;
+using Quizlet_App_Server.Src.Services;
 using Quizlet_App_Server.Utility;
 using System.Security.Cryptography.Xml;
 
@@ -18,10 +20,12 @@ namespace Quizlet_App_Server.Controllers
     public class UserController : ControllerExtend<User>
     {
         private readonly UserService service;
+        private readonly RankSystemService rankSystemService;
         public UserController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config) 
             : base(setting, mongoClient)
         {
             service = new(mongoClient, config);
+            rankSystemService = new(mongoClient, config);
         }
         [ApiExplorerSettings(IgnoreApi = true)]
         // GET: api/<UserController>
@@ -30,7 +34,15 @@ namespace Quizlet_App_Server.Controllers
         {
             return new string[] { "value1", "value2" };
         }
+        [HttpGet]
+        public ActionResult<RankResult> GetRankResult(string userId)
+        {
+            var result = rankSystemService.GetRankResult(userId);
 
+            if (result == null) return BadRequest("Request faild");
+
+            return new ActionResult<RankResult>(result);
+        }
         // GET api/<UserController>/5
         [HttpPost]
         public ActionResult<User> Login([FromBody] UserLogin loginRequest)
@@ -83,7 +95,6 @@ namespace Quizlet_App_Server.Controllers
             //string token = service.GenerateToken(existingUser);
             return Ok(existingUser);
         }
-
         // POST api/<UserController>
         [HttpPost]
         public ActionResult<User> SignUp([FromBody] UserSignUp request)
@@ -92,6 +103,7 @@ namespace Quizlet_App_Server.Controllers
             { 
                 LoginName = request.LoginName, 
                 LoginPassword = request.LoginPassword ,
+                UserName = request.LoginName,
                 Email = request.Email,
                 DateOfBirth = request.DateOfBirth
             };
@@ -231,6 +243,12 @@ namespace Quizlet_App_Server.Controllers
 
             var result = service.UpdateInfoUser(userId, req);
             return new ActionResult<InfoPersonal>(result);
+        }
+        [HttpDelete] 
+        public ActionResult DeleteAllUser()
+        {
+            long deleteCount = service.DeleteAllUser();
+            return Ok($"Deleted: {deleteCount}");
         }
     }
 }

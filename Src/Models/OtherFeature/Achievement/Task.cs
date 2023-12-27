@@ -8,6 +8,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("task_id")] public int? Id { get; set; } = 0;
         [BsonElement("task_name")] public string? TaskName { get; set; } = string.Empty;
         [BsonElement("type")] public string? Type { get; set; } = TaskType.None;
+        [BsonElement("score")] public int? Score { get; set; } = 1;
         [BsonElement("status")] public TaskStatus Status 
         {
             get

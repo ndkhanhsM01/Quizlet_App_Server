@@ -74,6 +74,13 @@ namespace Quizlet_App_Server.Services
 
             return existingUser;
         }
+        public long DeleteAllUser()
+        {
+            var filter = Builders<User>.Filter.Empty;
+            long deleteCount = collection.DeleteMany(filter).DeletedCount;
+
+            return deleteCount;
+        }
         public User FindById(string id)
         {
             var filter = Builders<User>.Filter.Eq(x => x.Id, id);

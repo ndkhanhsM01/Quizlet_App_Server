@@ -18,6 +18,7 @@
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="Src\Controllers\Helper\" />
+    <Folder Include="Src\Controllers\OtherFeature\RankSystem\" />
     <Folder Include="Src\Models\Validate\" />
   </ItemGroup>
 

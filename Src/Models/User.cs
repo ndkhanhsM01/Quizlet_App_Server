@@ -20,7 +20,7 @@ namespace Quizlet_App_Server.Models
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
-        [BsonElement("collection_storage")] public UserCollection? CollectionStorage { get; set; } = new UserCollection();
+        [BsonElement("collection_storage")] public UserCollection CollectionStorage { get; set; } = new UserCollection();
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
         [BsonElement("streak")] public Streak Streak { get; set; } = new Streak();
         [BsonElement("achievement")] public Achievement Achievement { get; set; } = new Achievement();
@@ -60,6 +60,18 @@ namespace Quizlet_App_Server.Models
                 //Avatar = this.Avatar,
                 DateOfBirth = this.DateOfBirth,
                 Setting = this.Setting
+            };
+        }
+        public InforUserRanking GetInfoScore()
+        {
+            return new InforUserRanking()
+            {
+                Score = this.CollectionStorage.Score,
+                SeqId = this.SeqId,
+                UserName = this.UserName,
+                Email = this.Email,
+                //Avatar = this.Avatar,
+                DateOfBirth = this.DateOfBirth
             };
         }
     }
@@ -130,8 +142,21 @@ namespace Quizlet_App_Server.Models
     }
 
     [System.Serializable]
+    public class InforUserRanking
+    {
+        [BsonElement("score")] public int Score { get; set; } = 0;
+        [BsonElement("seq_id")] public int SeqId { get; set; } = 0;
+        [BsonElement("user_name")] public string? UserName { get; set; } = string.Empty;
+        [BsonElement("email")] public string? Email { get; set; } = string.Empty;
+        //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
+        [BsonElement("date_of_birth")] public string? DateOfBirth { get; set; } = string.Empty;
+        //[BsonElement("avatar")] public List<int>? Avatar { get; set; } = new List<int>();
+    }
+
+    [System.Serializable]
     public class UserCollection
     {
         [BsonElement("create_set_count")] public int CreateSetCount { get; set; } = 0;
+        [BsonElement("score")] public int Score { get; set; } = 0;
     }
 }
