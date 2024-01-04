@@ -162,6 +162,7 @@ namespace Quizlet_App_Server.Src.Controllers
                         userExisting.Documents.StudySets.Remove(set);
                     }
                     //folder.AddNewSet(set);
+                    set.IdFolderOwner = folder.Id;
                     tempList.Add(set);
                 }
 

@@ -128,12 +128,12 @@ namespace Quizlet_App_Server.Controllers
         public ActionResult<StreakRespone> DetectContinueStudy(string userId, long timeDetect)
         {
             var existingUser = service.FindById(userId);
-
             if (existingUser == null)
             {
                 return NotFound("User ID not found");
             }
 
+            timeDetect = TimeHelper.UnixTimeNow;
             // caculate streak
             if(existingUser.Streak == null || existingUser.Streak.LastTime <= 0)
             {
