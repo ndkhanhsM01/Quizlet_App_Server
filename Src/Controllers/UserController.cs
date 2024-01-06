@@ -6,6 +6,7 @@ using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Models.Helper;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
 using Quizlet_App_Server.Src.Models.OtherFeature.RankSystem;
 using Quizlet_App_Server.Src.Services;
 using Quizlet_App_Server.Utility;
@@ -43,6 +44,19 @@ namespace Quizlet_App_Server.Controllers
             if (result == null) return BadRequest("Request faild");
 
             return new ActionResult<RankResult>(result);
+        }
+        [HttpGet]
+        public ActionResult<List<Notification>> GetAllCurrentNotices(string userId)
+        {
+            var existingUser = service.FindById(userId);
+            if (existingUser == null)
+            {
+                return NotFound("User ID not found");
+            }
+
+            var result = existingUser.AllNotices;
+
+            return new ActionResult<List<Notification>>(result);
         }
         // GET api/<UserController>/5
         [HttpPost]
@@ -173,7 +187,8 @@ namespace Quizlet_App_Server.Controllers
                     taskLateNight.Progress++;
 
                     if (!wasCompleted && taskLateNight.Status >= Models.TaskStatus.Completed)
-                        existingUser.UpdateScore(taskLateNight.Score ?? 0);
+                        //existingUser.UpdateScore(taskLateNight.Score ?? 0);
+                        existingUser.CompleteNewTask(taskLateNight);
                 }
             }
             else if (hour >= 4 && hour < 7)
@@ -185,7 +200,8 @@ namespace Quizlet_App_Server.Controllers
                     taskEarly.Progress++;
 
                     if (!wasCompleted && taskEarly.Status >= Models.TaskStatus.Completed)
-                        existingUser.UpdateScore(taskEarly.Score ?? 0);
+                        //existingUser.UpdateScore(taskEarly.Score ?? 0);
+                        existingUser.CompleteNewTask(taskEarly);
                 }
             }
             
@@ -196,14 +212,16 @@ namespace Quizlet_App_Server.Controllers
                 taskStudyCard.Progress++;
 
                 if (!wasCompleted && taskStudyCard.Status >= Models.TaskStatus.Completed)
-                    existingUser.UpdateScore(taskStudyCard.Score ?? 0);
+                    //existingUser.UpdateScore(taskStudyCard.Score ?? 0);
+                    existingUser.CompleteNewTask(taskStudyCard);
             }
             #endregion
             // update in database
             var update = Builders<User>.Update
                 .Set("streak", existingUser.Streak)
                 .Set("achievement", existingUser.Achievement)
-                .Set("collection_storage", existingUser.CollectionStorage);
+                .Set("collection_storage", existingUser.CollectionStorage)
+                .Set("all_notices", existingUser.AllNotices);
             var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
 
             var options = new FindOneAndUpdateOptions<User>

@@ -86,7 +86,9 @@ namespace Quizlet_App_Server.Controllers
                 userService.UpdateAchievement(userId, userExisting.Achievement);
 
                 if (!wasCompleted && task.Status >= Models.TaskStatus.Completed)
-                    userService.UpdateScore(userExisting, task.Score ?? 0);
+                    //userService.UpdateScore(userExisting, task.Score ?? 0);
+                    userService.CompleteNewTask(userExisting, task.Id ?? -1);
+                    
             }
             //--
 

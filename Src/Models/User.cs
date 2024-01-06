@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Libmongocrypt;
+using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
 using Quizlet_App_Server.Utility;
 
 namespace Quizlet_App_Server.Models
@@ -20,6 +21,7 @@ namespace Quizlet_App_Server.Models
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        [BsonElement("all_notices")] public List<Notification>? AllNotices { get; set; } = new List<Notification>();
         [BsonElement("collection_storage")] public UserCollection CollectionStorage { get; set; } = new UserCollection();
         [BsonElement("documents")] public Documents Documents { get; set; } = new Documents();
         [BsonElement("streak")] public Streak Streak { get; set; } = new Streak();
@@ -51,8 +53,30 @@ namespace Quizlet_App_Server.Models
                 bool wasCompleted = task.Status >= TaskStatus.Completed;
                 task.Progress = Streak.CurrentStreak;
 
-                if(!wasCompleted && task.Status >= TaskStatus.Completed) 
-                    this.CollectionStorage.Score += task.Score ?? 0;
+                if(!wasCompleted && task.Status >= TaskStatus.Completed)
+                {
+                    CompleteNewTask(task);
+                }
+            }
+        }
+        public void CompleteNewTask(Task task)
+        {
+            Notification newNotice = new Notification()
+            {
+                Id = task.Id,
+                Title = $"Reached new milestone",
+                Detail = $"Congratulation!! You reached {task.TaskName}",
+                WasPushed = false
+            };
+            this.CollectionStorage.Score += task.Score ?? 0;
+            if (AllNotices == null) AllNotices = new();
+
+            AllNotices.Insert(0, newNotice);
+
+            // max = 5 notices
+            if(AllNotices.Count > 5)
+            {
+                AllNotices.RemoveAt(5);
             }
         }
         public void UpdateScore(int value)

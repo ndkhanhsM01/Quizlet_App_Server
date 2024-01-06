@@ -130,6 +130,24 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
+        public User CompleteNewTask(User existingUser, int taskId)
+        {
+            Models.Task task = existingUser.Achievement.TaskList.Find(t => t.Id== taskId);
+            if (task == null) return null;
+
+            existingUser.CompleteNewTask(task);
+            var update = Builders<User>.Update
+                .Set("collection_storage", existingUser.CollectionStorage)
+                .Set("all_notices", existingUser.AllNotices);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, existingUser.Id);
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+            var result = collection.FindOneAndUpdate(filter, update, options);
+
+            return result;
+        }
         public User UpdateScore(string userId, int score)
         {
             var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
