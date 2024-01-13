@@ -68,8 +68,16 @@ namespace Quizlet_App_Server.Controllers
             }
             else
             {
-                newSet.IdFolderOwner = string.Empty;
-                userExisting.Documents.StudySets.Add(newSet);
+                // study set in outside
+                if(userExisting.Documents.StudySets.Any(set => set.Name.Equals(req.Name)))
+                {
+                    return BadRequest("Has exist other study set same name in here");
+                }
+                else
+                {
+                    newSet.IdFolderOwner = string.Empty;
+                    userExisting.Documents.StudySets.Add(newSet);
+                }
             }
 
             userService.UpdateDocumentsUser(userExisting);

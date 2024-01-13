@@ -29,8 +29,8 @@ namespace Quizlet_App_Server.Controllers
         [HttpGet]
         public ActionResult<List<StudySetPublic>> GetAll()
         {
-            var result = service.GetAll();
-
+            var result = service.GetAll().OrderByDescending(s => s.TimePushed).ToList();
+            
             return new ActionResult<List<StudySetPublic>>(result);
         }
 

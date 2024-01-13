@@ -9,6 +9,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("id_owner")] public string IdOwner { get; set;} = string.Empty;
         [BsonElement("name_owner")] public string NameOwner { get; set;} = string.Empty;
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
+        [BsonElement("time_pushed")] public long? TimePushed { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("count_term")] public int? CountTerm { get => AllCards != null ? AllCards.Count : 0; }
         [BsonElement("name")] public string Name { get; set; } = string.Empty;
         [BsonElement("description")] public string Description { get; set; } = string.Empty;
