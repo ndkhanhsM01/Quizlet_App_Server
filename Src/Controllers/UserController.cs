@@ -110,6 +110,21 @@ namespace Quizlet_App_Server.Controllers
             //string token = service.GenerateToken(existingUser);
             return Ok(existingUser);
         }
+        // GET api/<UserController>/5
+        [HttpPost]
+        public ActionResult<User> GetInfoByID([FromBody] string ID)
+        {
+            // find user
+            var existingUser = service.FindById(ID);
+
+            // login name incorrect
+            if (existingUser == null)
+            {
+                return NotFound("User's ID not found");
+            }
+
+            return Ok(existingUser);
+        }
         // POST api/<UserController>
         [HttpPost]
         public ActionResult<User> SignUp([FromBody] UserSignUp request)
