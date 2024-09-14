@@ -112,7 +112,7 @@ namespace Quizlet_App_Server.Controllers
         }
         // GET api/<UserController>/5
         [HttpPost]
-        public ActionResult<User> GetInfoByID([FromBody] string ID)
+        public ActionResult<User> GetInfoByID(string ID)
         {
             // find user
             var existingUser = service.FindById(ID);
