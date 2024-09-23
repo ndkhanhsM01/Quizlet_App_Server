@@ -77,6 +77,11 @@ namespace Quizlet_App_Server.Controllers
                 return BadRequest("Password incorrect");
             }
 
+            if (existingUser.IsSuspend)
+            {
+                return BadRequest($"Account has been suspended!");
+            }
+
             #region detect new version of achievement
             Achievement currentAchievement = existingUser.Achievement != null 
                                             ? existingUser.Achievement

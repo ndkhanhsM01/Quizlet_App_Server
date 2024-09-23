@@ -16,6 +16,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("seq_id")] public int SeqId { get; set; }
         [BsonElement("login_name")] public string LoginName { get; set; } = string.Empty;
         [BsonElement("login_password")] public string LoginPassword { get; set; } = string.Empty;
+        [BsonElement("is_suspend")] public bool IsSuspend { get; set; } = false;
         [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
         [BsonElement("email")] public string Email { get; set; } = string.Empty;
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
