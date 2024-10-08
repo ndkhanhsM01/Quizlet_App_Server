@@ -86,5 +86,18 @@ namespace Quizlet_App_Server.Src.Controllers
 
             return Ok($"User suspend was be changed to: {suspend}");
         }
+
+        [HttpDelete]
+        public ActionResult DeleteUser(string userID)
+        {
+            var delteResult = service.DeleteUser(userID);
+
+            if(delteResult.DeletedCount <= 0)
+            {
+                return BadRequest("User not found");
+            }
+
+            return Ok("User was be deleted");
+        }
     }
 }

@@ -58,5 +58,12 @@ namespace Quizlet_App_Server.Src.Services
 
             return true;
         }
+
+        public DeleteResult DeleteUser(string userID)
+        {
+            DeleteResult deleteResult = user_collection.DeleteOne(u => u.Id == userID);
+
+            return deleteResult;
+        }
     }
 }
