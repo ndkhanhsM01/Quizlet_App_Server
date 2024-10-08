@@ -70,16 +70,23 @@ namespace Quizlet_App_Server.Models
                 WasPushed = false
             };
             this.CollectionStorage.Score += task.Score ?? 0;
+
+            InsertNewNotice(newNotice);
+        }
+
+        public void InsertNewNotice(Notification newNotice)
+        {
             if (AllNotices == null) AllNotices = new();
 
             AllNotices.Insert(0, newNotice);
 
-            // max = 5 notices
-            if(AllNotices.Count > 5)
+            /*// max = 5 notices
+            if (AllNotices.Count > 5)
             {
                 AllNotices.RemoveAt(5);
-            }
+            }*/
         }
+
         public void UpdateScore(int value)
         {
             this.CollectionStorage.Score += value;

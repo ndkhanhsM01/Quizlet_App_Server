@@ -1,6 +1,9 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using Quizlet_App_Server.Models;
+using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
 using Quizlet_App_Server.Utility;
+using static MongoDB.Driver.WriteConcern;
 
 namespace Quizlet_App_Server.Src.Services
 {
@@ -57,6 +60,26 @@ namespace Quizlet_App_Server.Src.Services
             var result = user_collection.FindOneAndUpdate(filter, update, options);
 
             return true;
+        }
+
+        public UpdateResult PingNoticeUser(string userID, Notification notice)
+        {
+            notice.WasPushed = false;
+            var update = Builders<User>.Update.PushEach("all_notices", new[] { notice }, position: 0);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, userID);
+
+
+            return user_collection.UpdateOne(filter, update);
+        }
+
+        public UpdateResult PingNoticeAllUsers(Notification notice)
+        {
+            notice.WasPushed = false;
+            var update = Builders<User>.Update.PushEach("all_notices", new[] { notice }, position: 0);
+            var filter = Builders<User>.Filter.Empty;
+
+
+            return user_collection.UpdateMany(filter, update);
         }
 
         public DeleteResult DeleteUser(string userID)

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Quizlet_App_Server.Models;
+using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
 using Quizlet_App_Server.Src.Services;
 using Quizlet_App_Server.Utility;
 
@@ -85,6 +86,32 @@ namespace Quizlet_App_Server.Src.Controllers
             }
 
             return Ok($"User suspend was be changed to: {suspend}");
+        }
+
+        [HttpPost]
+        public ActionResult PingNoticeUser(string userID, Notification notice)
+        {
+            var updateResult = service.PingNoticeUser(userID, notice);
+
+            if(updateResult.ModifiedCount <= 0)
+            {
+                return BadRequest("Push notification failed!");
+            }
+
+            return Ok("Push notification success!");
+        }
+
+        [HttpPost]
+        public ActionResult PingNoticeForAllUsers(Notification notice)
+        {
+            var updateResult = service.PingNoticeAllUsers(notice);
+
+            if (updateResult.ModifiedCount <= 0)
+            {
+                return BadRequest("Push notification failed!");
+            }
+
+            return Ok("Push notification success!");
         }
 
         [HttpDelete]
