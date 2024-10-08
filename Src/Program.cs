@@ -28,10 +28,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-FirebaseApp.Create(new AppOptions()
+/*FirebaseApp.Create(new AppOptions()
 {
     Credential = GoogleCredential.FromFile("../Quizlet_App_Server/Config/quizlet-firebase-adminsdk.json")
-});
+});*/
 
 //JWT Authentication
 #region JWT authentication
