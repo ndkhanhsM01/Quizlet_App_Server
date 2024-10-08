@@ -31,11 +31,11 @@ namespace Quizlet_App_Server.Models
             this.Description = dto.Description;
             this.StudySets = dto.StudySets;
         }
-        public void AddNewSet(StudySetDTO newSet)
+/*        public void AddNewSet(StudySetDTO newSet)
         {
             newSet.IdFolderOwner = this.Id;
             StudySets.Add(new StudySet(newSet));
-        }
+        }*/
         public void AddNewSet(StudySet newSet)
         {
             newSet.IdFolderOwner = this.Id;

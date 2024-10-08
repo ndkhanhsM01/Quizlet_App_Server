@@ -109,7 +109,7 @@ namespace Quizlet_App_Server.Src.Controllers
             {
                 if (s.Id.IsNullOrEmpty())
                 {
-                    StudySet newSet = new StudySet(s);
+                    StudySet newSet = new StudySet(userId, s);
                     tempList.Add(newSet);
                     continue;
                 }

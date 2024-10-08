@@ -53,7 +53,7 @@ namespace Quizlet_App_Server.Controllers
 
             Folder folderOwner = userExisting.Documents.Folders.Find(x => x.Id.Equals(req.IdFolderOwner));
 
-            StudySet newSet = new(req);
+            StudySet newSet = new(userId, req);
 
             if(folderOwner != null && folderOwner.Id.Equals(req.IdFolderOwner))
             {
