@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Firebase.Auth;
+using Firebase.Storage;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Utility;
 using System.Net;
+using User = Quizlet_App_Server.Models.User;
 
 namespace Quizlet_App_Server.Controllers
 {
@@ -14,10 +19,15 @@ namespace Quizlet_App_Server.Controllers
     public class CardController : ControllerExtend<User>
     {
         private readonly UserService userService;
-        public CardController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config) 
+        private readonly IWebHostEnvironment webHostEnvironment;
+        public CardController(UserStoreDatabaseSetting setting
+                            , IMongoClient mongoClient
+                            , IConfiguration config
+                            , IWebHostEnvironment webHostEnvironment) 
             : base(setting, mongoClient)
         {
             userService = new(mongoClient, config);
+            this.webHostEnvironment = webHostEnvironment;
         }
         [AllowAnonymous]
         private User UpdateDocumentsUser(User existingUser)
@@ -124,6 +134,58 @@ namespace Quizlet_App_Server.Controllers
 
             UserRespone respone = new UserRespone(existingUser);
             return new ActionResult<UserRespone>(respone);
+        }
+
+        /*[HttpPost]
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
+        {
+            FileStream stream;
+            if(file.Length > 0)
+            {
+                string path = Path.Combine(webHostEnvironment.WebRootPath, file.FileName);
+                stream = new FileStream(Path.Combine(path), FileMode.Open);
+
+                await System.Threading.Tasks.Task.Run(() =>
+                {
+                    Upload(stream, file.FileName);
+                });
+
+                return Ok("Uploading");
+            }
+            else
+                return BadRequest("Upload failed");
+        }*/
+
+        private async void Upload(FileStream stream, string fileName)
+        {
+            //authentication
+            var auth = new FirebaseAuthProvider(new FirebaseConfig(FBConfig.ApiKey));
+            var a = await auth.SignInWithEmailAndPasswordAsync(FBConfig.AuthEmail, FBConfig.AuthPassword);
+
+            var cancellation = new CancellationTokenSource();
+
+            // Constructr FirebaseStorage, path to where you want to upload the file and Put it there
+            var task = new FirebaseStorage(
+                FBConfig.Bucket,
+
+                 new FirebaseStorageOptions
+                 {
+                     AuthTokenAsyncFactory = () => System.Threading.Tasks.Task.FromResult(a.FirebaseToken),
+                     ThrowOnCancel = true,
+                 })
+                .Child("data")
+                .Child("random")
+                .Child(fileName)
+                .PutAsync(stream, cancellation.Token);
+
+            try
+            {
+                string link = await task;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
     }
 }
