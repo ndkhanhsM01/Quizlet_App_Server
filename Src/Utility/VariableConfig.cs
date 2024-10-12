@@ -10,5 +10,9 @@
         public const string Collection_Configure = "Configure";
         public const string Collection_Admin = "Admin";
         public const string Collection_StudySetPublic = "StudySetPublic";
+
+        // Tetris
+        public const string Tetris_DatabaseName = "TetrisGame";
+        public const string Collection_TetrisScore = "UserScore";
     }
 }
