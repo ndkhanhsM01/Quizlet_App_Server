@@ -29,6 +29,25 @@ namespace Tetris
             return newUser;
         }
 
+        public UserScore UpdateValue(long userId, string nameField, object value)
+        {
+            UserScore user = userScore_collection.Find(u => u.SeqID == userId).First();
+
+            if (user == null) return null;
+
+            var update = Builders<UserScore>.Update.Set(nameField, value);
+            var filter = Builders<UserScore>.Filter.Eq(x => x.Id, user.Id);
+
+            var options = new FindOneAndUpdateOptions<UserScore>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+
+            var result = userScore_collection.FindOneAndUpdate(filter, update, options);
+
+            return result;
+        }
+
         public List<UserScore> GetTopUserScore(int amount = 10)
         {
             List<UserScore> result = new List<UserScore>();

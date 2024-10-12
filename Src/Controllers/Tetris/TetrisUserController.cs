@@ -30,6 +30,36 @@ namespace Tetris
             return new ActionResult<UserScore>(newUser);
         }
 
+        [HttpPost]
+        public ActionResult<Dictionary<string, object>> UpdateScore(long userId, int newScore)
+        {
+            UserScore newData = service.UpdateValue(userId, "score", newScore);
+
+            if(newData == null)
+            {
+                return BadRequest($"User not found <{userId}>");
+            }
+
+            Dictionary<string, object> result = new();
+            result.Add("ranking", service.GetRanking(userId));
+            result.Add("top10", service.GetTopUserScore(10));
+
+            return new ActionResult<Dictionary<string, object>>(result);
+        }
+
+        [HttpPost]
+        public ActionResult<UserScore> UpdateName(long userId, string newName)
+        {
+            UserScore newData = service.UpdateValue(userId, "name", newName);
+
+            if (newData == null)
+            {
+                return BadRequest($"User not found <{userId}>");
+            }
+
+            return new ActionResult<UserScore>(newData);
+        }
+
         [HttpGet]
         public ActionResult<Dictionary<string, object>> GetRankingResult(long userId)
         {
