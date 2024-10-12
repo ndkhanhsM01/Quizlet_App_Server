@@ -36,7 +36,7 @@ namespace Tetris
             var filter = Builders<UserScore>.Filter.Empty;
             var sort = Builders<UserScore>.Sort.Descending(u => u.Score);
 
-            var top10Users = userScore_collection.Find(filter)
+            result = userScore_collection.Find(filter)
                                           .Sort(sort)
                                           .Limit(amount)
                                           .ToList();
