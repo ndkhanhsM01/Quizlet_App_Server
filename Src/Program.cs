@@ -20,6 +20,18 @@ builder.Services.AddSingleton<UserStoreDatabaseSetting>(
                             sp => sp.GetRequiredService<IOptions<UserStoreDatabaseSetting>>().Value);
 builder.Services.AddSingleton<IMongoClient>(
                             s => new MongoClient(builder.Configuration.GetValue<string>("UserStoreDatabaseSetting:ConnectionString")));
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", policy =>
+    {
+        policy.AllowAnyOrigin()    
+              .AllowAnyHeader()    
+              .AllowAnyMethod();   
+    });
+});
+
+
 #endregion
 
 
@@ -56,7 +68,7 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
 //}
-
+app.UseCors("AllowAllOrigins");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
