@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Amazon.Runtime.Internal.Transform;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Quizlet_App_Server.Models;
@@ -73,6 +74,29 @@ namespace Quizlet_App_Server.Src.Controllers
 
             List<User> result = service.GetUsers(from, to);
             return Ok(result);
+        }
+
+        [HttpGet]
+        public ActionResult<Dictionary<string, int>> GetChartUsersCreateByMonth()
+        {
+            try
+            {
+                int year = 2024;
+                Dictionary<string, int> result = new();
+
+                result.Add("totalUsers", service.CountUsers());
+
+                for (int i = 1; i <= 12; i++)
+                {
+                    result.Add(i.ToString(), service.GetUsersByMonthOfTimeCreated(i, year).Count);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
