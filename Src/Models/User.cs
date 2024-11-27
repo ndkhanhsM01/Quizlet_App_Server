@@ -29,7 +29,8 @@ namespace Quizlet_App_Server.Models
         [BsonElement("achievement")] public Achievement Achievement { get; set; } = new Achievement();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
         //[BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
-
+        [BsonElement("access_token")] public string? AccessToken { get; set; }
+        [BsonElement("expire_token")] public long ExpiryToken { get; set; }
         public void UpdateInfo(InfoPersonal newInfo)
         {
             this.UserName = newInfo.UserName;

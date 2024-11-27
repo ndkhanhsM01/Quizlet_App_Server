@@ -1,5 +1,6 @@
 ﻿using Amazon.Runtime.Internal;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
@@ -10,8 +11,12 @@ using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
 using Quizlet_App_Server.Src.Models.OtherFeature.RankSystem;
 using Quizlet_App_Server.Src.Services;
 using Quizlet_App_Server.Utility;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,13 +24,16 @@ namespace Quizlet_App_Server.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerExtend<User>
     {
+        private readonly IConfiguration configuration;
         private readonly UserService service;
         private readonly RankSystemService rankSystemService;
         public UserController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config) 
             : base(setting, mongoClient)
         {
+            configuration = config;
             service = new(mongoClient, config);
             rankSystemService = new(mongoClient, config);
         }
@@ -114,6 +122,33 @@ namespace Quizlet_App_Server.Controllers
             }
             #endregion
             //string token = service.GenerateToken(existingUser);
+
+            var issuer = configuration["Jwt:Issuer"];
+            var audience = configuration["Jwt:Audience"];
+            var key = configuration["Jwt:Key"];
+            var tokenValidityMins = configuration.GetValue<int>("Jwt:TokenValidityMins");
+            var tokenExpiryTimeStamp = DateTime.UtcNow.AddMinutes(tokenValidityMins);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Name, loginRequest.LoginName)
+                }),
+                Expires = tokenExpiryTimeStamp,
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                    SecurityAlgorithms.HmacSha512Signature),
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = tokenHandler.CreateToken(tokenDescriptor);
+            var accessToken = tokenHandler.WriteToken(securityToken);
+
+            existingUser.AccessToken = accessToken;
+            existingUser.ExpiryToken = (long) tokenExpiryTimeStamp.Subtract(DateTime.UtcNow).TotalSeconds;
+
             return Ok(existingUser);
         }
         // GET api/<UserController>/5
