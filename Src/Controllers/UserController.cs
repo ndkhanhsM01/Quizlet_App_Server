@@ -72,7 +72,8 @@ namespace Quizlet_App_Server.Controllers
             }
 
             // password incorrect
-            if(!existingUser.LoginPassword.Equals(loginRequest.LoginPassword))
+            bool isCorrectPassword = BCrypt.Net.BCrypt.EnhancedVerify(loginRequest.LoginPassword, existingUser.LoginPassword);
+            if (!isCorrectPassword)
             {
                 return BadRequest("Password incorrect");
             }
@@ -134,10 +135,11 @@ namespace Quizlet_App_Server.Controllers
         [HttpPost]
         public ActionResult<User> SignUp([FromBody] UserSignUp request)
         {
+            string hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(request.LoginPassword);
             User newUser = new User()
             { 
                 LoginName = request.LoginName, 
-                LoginPassword = request.LoginPassword ,
+                LoginPassword =  hashPassword,
                 UserName = request.LoginName,
                 Email = request.Email,
                 DateOfBirth = request.DateOfBirth
