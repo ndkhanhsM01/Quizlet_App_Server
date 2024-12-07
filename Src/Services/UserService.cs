@@ -16,6 +16,9 @@ namespace Quizlet_App_Server.Services
         protected readonly IMongoCollection<User> collection;
         protected readonly IMongoClient client;
         private readonly IConfiguration config;
+
+        public IMongoCollection<User> Collection => collection;
+
         public UserService(IMongoClient mongoClient, IConfiguration config)
         {
             var database = mongoClient.GetDatabase(VariableConfig.DatabaseName);

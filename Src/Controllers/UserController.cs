@@ -6,7 +6,6 @@ using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Models.Helper;
-using Quizlet_App_Server.Services;
 using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
 using Quizlet_App_Server.Src.Models.OtherFeature.RankSystem;
 using Quizlet_App_Server.Src.Services;
@@ -17,25 +16,28 @@ using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Quizlet_App_Server.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Quizlet_App_Server.Controllers
 {
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize]
     public class UserController : ControllerExtend<User>
     {
         private readonly IConfiguration configuration;
         private readonly UserService service;
         private readonly RankSystemService rankSystemService;
+        private readonly JwtService jwtService;
         public UserController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config) 
             : base(setting, mongoClient)
         {
             configuration = config;
             service = new(mongoClient, config);
             rankSystemService = new(mongoClient, config);
+            jwtService = new JwtService(service, config);
         }
         [ApiExplorerSettings(IgnoreApi = true)]
         // GET: api/<UserController>
@@ -67,24 +69,21 @@ namespace Quizlet_App_Server.Controllers
             return new ActionResult<List<Notification>>(result);
         }
         // GET api/<UserController>/5
+        [AllowAnonymous]
         [HttpPost]
-        public ActionResult<User> Login([FromBody] UserLogin loginRequest)
+        public async Task<ActionResult<Dictionary<string, object>>> Login([FromBody] UserLoginRequest loginRequest)
         {
             // find user
-            var existingUser = service.FindByLoginName(loginRequest.LoginName);
+            var resultAuthenticate = await jwtService.Authenticate(loginRequest);
 
             // login name incorrect
-            if(existingUser == null)
+            if(resultAuthenticate == null)
             {
-                return NotFound("Login name not found");
+                return Unauthorized();
             }
 
-            // password incorrect
-            bool isCorrectPassword = BCrypt.Net.BCrypt.EnhancedVerify(loginRequest.LoginPassword, existingUser.LoginPassword);
-            if (!isCorrectPassword)
-            {
-                return BadRequest("Password incorrect");
-            }
+            var existingUser = resultAuthenticate["user"] as User;
+            string accessToken = resultAuthenticate["accessToken"] as string;
 
             if (existingUser.IsSuspend)
             {
@@ -123,33 +122,9 @@ namespace Quizlet_App_Server.Controllers
             #endregion
             //string token = service.GenerateToken(existingUser);
 
-            var issuer = configuration["Jwt:Issuer"];
-            var audience = configuration["Jwt:Audience"];
-            var key = configuration["Jwt:Key"];
-            var tokenValidityMins = configuration.GetValue<int>("Jwt:TokenValidityMins");
-            var tokenExpiryTimeStamp = DateTime.UtcNow.AddMinutes(tokenValidityMins);
+            //**
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Name, loginRequest.LoginName)
-                }),
-                Expires = tokenExpiryTimeStamp,
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-                    SecurityAlgorithms.HmacSha512Signature),
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-            var accessToken = tokenHandler.WriteToken(securityToken);
-
-            existingUser.AccessToken = accessToken;
-            existingUser.ExpiryToken = (long) tokenExpiryTimeStamp.Subtract(DateTime.UtcNow).TotalSeconds;
-
-            return Ok(existingUser);
+            return Ok(resultAuthenticate);
         }
         // GET api/<UserController>/5
         [HttpPost]
@@ -167,6 +142,7 @@ namespace Quizlet_App_Server.Controllers
             return Ok(existingUser);
         }
         // POST api/<UserController>
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult<User> SignUp([FromBody] UserSignUp request)
         {
