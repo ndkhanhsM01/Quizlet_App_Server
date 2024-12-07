@@ -75,6 +75,29 @@ namespace Quizlet_App_Server.Src.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        public ActionResult<Dictionary<string, int>> GetChartUsersCreateByMonth()
+        {
+            try
+            {
+                int year = 2024;
+                Dictionary<string, int> result = new();
+
+                result.Add("totalUsers", service.CountUsers());
+
+                for (int i = 1; i <= 12; i++)
+                {
+                    result.Add(i.ToString(), service.GetUsersByMonthOfTimeCreated(i, year).Count);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost]
         public ActionResult SetSuspendUser(string userID, bool suspend)
         {

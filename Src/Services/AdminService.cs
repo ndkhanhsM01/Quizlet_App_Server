@@ -3,7 +3,6 @@ using MongoDB.Driver;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
 using Quizlet_App_Server.Utility;
-using static MongoDB.Driver.WriteConcern;
 
 namespace Quizlet_App_Server.Src.Services
 {
@@ -87,6 +86,35 @@ namespace Quizlet_App_Server.Src.Services
             DeleteResult deleteResult = user_collection.DeleteOne(u => u.Id == userID);
 
             return deleteResult;
+        }
+
+        public int CountUsers()
+        {
+            var filter = Builders<User>.Filter.Empty;
+
+            var result = user_collection.Find(filter).ToList();
+
+            return result.Count;
+        }
+
+        public List<User> GetUsersByMonthOfTimeCreated(int month, int year)
+        {
+            if (month < 1 || month > 12) return new();
+
+            DateTime startDate = new DateTime(year, month, 1);
+            DateTime endDate = startDate.AddMonths(1).AddSeconds(-1);
+
+            long startUnix = TimeHelper.ToUnixTime(startDate);
+            long endUnix = TimeHelper.ToUnixTime(endDate);
+
+            var filter = Builders<User>.Filter.And(
+                    Builders<User>.Filter.Gte(x => x.TimeCreated, startUnix),
+                    Builders<User>.Filter.Lte(x => x.TimeCreated, endUnix)
+                    );
+
+            var result = user_collection.Find(filter);
+
+            return result.ToList();
         }
     }
 }
