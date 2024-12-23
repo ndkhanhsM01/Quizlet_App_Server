@@ -34,6 +34,11 @@ namespace Quizlet_App_Server
                 return null;
             }
 
+            if (userService.CheckSuspendTemp(existingUser))
+            {
+                return null;
+            }
+
             // password incorrect
             bool isCorrectPassword = userService.VerifyPassword(existingUser.Id, loginReq.LoginPassword);
             if (!isCorrectPassword)

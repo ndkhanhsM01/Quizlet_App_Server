@@ -106,39 +106,9 @@ namespace Quizlet_App_Server.Controllers
                 return BadRequest($"Account has been suspended!");
             }
 
-            #region detect new version of achievement
-            Achievement currentAchievement = existingUser.Achievement != null 
-                                            ? existingUser.Achievement
-                                            : new Achievement();
-            Achievement configAchievement = service.GetConfigData<Achievement>("Achievement");
+            service.CheckVersionAchievement(ref existingUser);
+            service.CheckResetLoginCount(ref existingUser);
 
-            if(configAchievement.Version > currentAchievement.Version)
-            {
-                List<Models.Task> newTasks = new List<Models.Task>();
-
-                foreach (var configTask in configAchievement.TaskList)
-                {
-                    var taskOfUser = currentAchievement.TaskList.Find(t => t.Id == configTask.Id);
-
-                    if (taskOfUser == null)
-                    {
-                        newTasks.Add(configTask);
-                    }
-                    else if (taskOfUser.Condition != configTask.Condition)
-                    {
-                        taskOfUser.Condition = configTask.Condition;
-                    }
-                }
-
-                currentAchievement.Version = configAchievement.Version;
-                currentAchievement.TaskList.AddRange(newTasks);
-                existingUser.Achievement = service.UpdateAchievement(existingUser.Id, currentAchievement).Achievement;
-
-            }
-            #endregion
-            //string token = service.GenerateToken(existingUser);
-
-            //**
 
             return Ok(resultAuthenticate);
         }

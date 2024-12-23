@@ -178,6 +178,18 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
+        public User UpdateUserValue(string userId, string key, object value)
+        {
+            var update = Builders<User>.Update.Set(key, value);
+            var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+            var result = collection.FindOneAndUpdate(filter, update, options);
+
+            return result;
+        }
         public InfoPersonal UpdateInfoUser(string userId, InfoPersonal newInfo)
         {
             var updateDefinitionList = new List<UpdateDefinition<User>>();
@@ -257,12 +269,90 @@ namespace Quizlet_App_Server.Services
                 return false;
 
             bool isCorrectPassword = BCrypt.Net.BCrypt.EnhancedVerify(plainTxtPass, existingUser.LoginPassword);
+
+            if(!isCorrectPassword)
+            {
+                existingUser.TryLoginCount--;
+                UpdateUserValue(userId, "try_login_count", existingUser.TryLoginCount);
+
+                if(existingUser.TryLoginCount == 0)
+                {
+                    long durationSuspend = 60 * 60; // in 1 hour
+                    SetSuspendInDuration(userId, durationSuspend);
+                }
+            }
             return isCorrectPassword;
         }
         public string EncryptPassword(string plainTxtPassword)
         {
             string hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(plainTxtPassword);
             return hashPassword;
+        }
+        public void CheckVersionAchievement(ref User existingUser)
+        {
+            Achievement currentAchievement = existingUser.Achievement != null
+                                ? existingUser.Achievement
+                                : new Achievement();
+            Achievement configAchievement = GetConfigData<Achievement>("Achievement");
+
+            if (configAchievement.Version > currentAchievement.Version)
+            {
+                List<Models.Task> newTasks = new List<Models.Task>();
+
+                foreach (var configTask in configAchievement.TaskList)
+                {
+                    var taskOfUser = currentAchievement.TaskList.Find(t => t.Id == configTask.Id);
+
+                    if (taskOfUser == null)
+                    {
+                        newTasks.Add(configTask);
+                    }
+                    else if (taskOfUser.Condition != configTask.Condition)
+                    {
+                        taskOfUser.Condition = configTask.Condition;
+                    }
+                }
+
+                currentAchievement.Version = configAchievement.Version;
+                currentAchievement.TaskList.AddRange(newTasks);
+                existingUser.Achievement = UpdateAchievement(existingUser.Id, currentAchievement).Achievement;
+
+            }
+        }
+
+        public void CheckResetLoginCount(ref User existingUser)
+        {
+            long curTime = TimeHelper.UnixTimeNow;
+
+            if(curTime > existingUser.TimeResetLoginCount)
+            {
+                existingUser.ResetTryLoginCount();
+                UpdateUserValue(existingUser.Id, "try_login_count", existingUser.TryLoginCount);
+            }
+        }
+        public bool CheckSuspendTemp(User existingUser)
+        {
+            long curTime = TimeHelper.UnixTimeNow;
+
+            if(curTime < existingUser.TimeSuspendTemp)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public void SetSuspendInDuration(string userId, long second)
+        {
+            try
+            {
+                UpdateUserValue(userId, "time_suspend_temp", TimeHelper.UnixTimeNow + second);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+            }
         }
     }
 }
