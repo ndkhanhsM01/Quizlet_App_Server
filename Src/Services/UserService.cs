@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Amazon.Runtime.Internal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.Models;
@@ -86,10 +87,18 @@ namespace Quizlet_App_Server.Services
         }
         public User FindById(string id)
         {
-            var filter = Builders<User>.Filter.Eq(x => x.Id, id);
-            var existingUser = collection.Find(filter).FirstOrDefault();
+            try
+            {
+                var filter = Builders<User>.Filter.Eq(x => x.Id, id);
+                var existingUser = collection.Find(filter).FirstOrDefault();
 
-            return existingUser;
+                return existingUser;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine(ex);
+                return null;
+            }
         }
         public User FindByLoginName(string loginName)
         {
@@ -238,6 +247,22 @@ namespace Quizlet_App_Server.Services
 
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public bool VerifyPassword(string userId, string plainTxtPass)
+        {
+            var existingUser = FindById(userId);
+
+            if (existingUser == null)
+                return false;
+
+            bool isCorrectPassword = BCrypt.Net.BCrypt.EnhancedVerify(plainTxtPass, existingUser.LoginPassword);
+            return isCorrectPassword;
+        }
+        public string EncryptPassword(string plainTxtPassword)
+        {
+            string hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(plainTxtPassword);
+            return hashPassword;
         }
     }
 }

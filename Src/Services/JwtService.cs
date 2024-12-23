@@ -35,7 +35,7 @@ namespace Quizlet_App_Server
             }
 
             // password incorrect
-            bool isCorrectPassword = BCrypt.Net.BCrypt.EnhancedVerify(loginReq.LoginPassword, existingUser.LoginPassword);
+            bool isCorrectPassword = userService.VerifyPassword(existingUser.Id, loginReq.LoginPassword);
             if (!isCorrectPassword)
             {
                 return null;

@@ -68,6 +68,22 @@ namespace Quizlet_App_Server.Controllers
 
             return new ActionResult<List<Notification>>(result);
         }
+
+        [HttpGet]
+        public ActionResult VerifyUser(string userId, string plainPassword)
+        {
+            bool ok = service.VerifyPassword(userId, plainPassword);
+
+            if (ok)
+            {
+                return Ok();
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
         // GET api/<UserController>/5
         [AllowAnonymous]
         [HttpPost]
@@ -146,7 +162,7 @@ namespace Quizlet_App_Server.Controllers
         [HttpPost]
         public ActionResult<User> SignUp([FromBody] UserSignUp request)
         {
-            string hashPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(request.LoginPassword);
+            string hashPassword = service.EncryptPassword(request.LoginPassword);
             User newUser = new User()
             { 
                 LoginName = request.LoginName, 
