@@ -107,7 +107,6 @@ namespace Quizlet_App_Server.Controllers
             }
 
             service.CheckVersionAchievement(ref existingUser);
-            service.CheckResetLoginCount(ref existingUser);
 
 
             return Ok(resultAuthenticate);

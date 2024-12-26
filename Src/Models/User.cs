@@ -23,7 +23,6 @@ namespace Quizlet_App_Server.Models
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("try_login_count")] public int TryLoginCount { get; set; } = VariableConfig.MaxTryLogin;
-        [BsonElement("time_reset_login_count")] public long TimeResetLoginCount { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("time_suspend_temp")] public long TimeSuspendTemp { get; set; } = TimeHelper.UnixTimeNow;
         [BsonElement("all_notices")] public List<Notification>? AllNotices { get; set; } = new List<Notification>();
         [BsonElement("collection_storage")] public UserCollection CollectionStorage { get; set; } = new UserCollection();
@@ -61,10 +60,6 @@ namespace Quizlet_App_Server.Models
                     CompleteNewTask(task);
                 }
             }
-        }
-        public void ResetTryLoginCount()
-        {
-            TryLoginCount = VariableConfig.MaxTryLogin;
         }
         public void CompleteNewTask(Task task)
         {

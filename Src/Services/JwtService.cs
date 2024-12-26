@@ -38,6 +38,10 @@ namespace Quizlet_App_Server
             {
                 return null;
             }
+            else if(existingUser.TryLoginCount <= 0)
+            {
+                userService.ResetLoginCount(ref existingUser);
+            }
 
             // password incorrect
             bool isCorrectPassword = userService.VerifyPassword(existingUser.Id, loginReq.LoginPassword);

@@ -270,12 +270,12 @@ namespace Quizlet_App_Server.Services
 
             bool isCorrectPassword = BCrypt.Net.BCrypt.EnhancedVerify(plainTxtPass, existingUser.LoginPassword);
 
-            if(!isCorrectPassword)
+            if (!isCorrectPassword)
             {
                 existingUser.TryLoginCount--;
                 UpdateUserValue(userId, "try_login_count", existingUser.TryLoginCount);
 
-                if(existingUser.TryLoginCount == 0)
+                if (existingUser.TryLoginCount <= 0)
                 {
                     long durationSuspend = 60 * 60; // in 1 hour
                     SetSuspendInDuration(userId, durationSuspend);
@@ -320,15 +320,9 @@ namespace Quizlet_App_Server.Services
             }
         }
 
-        public void CheckResetLoginCount(ref User existingUser)
+        public void ResetLoginCount(ref User existingUser)
         {
-            long curTime = TimeHelper.UnixTimeNow;
-
-            if(curTime > existingUser.TimeResetLoginCount)
-            {
-                existingUser.ResetTryLoginCount();
-                UpdateUserValue(existingUser.Id, "try_login_count", existingUser.TryLoginCount);
-            }
+            UpdateUserValue(existingUser.Id, "try_login_count", VariableConfig.MaxTryLogin);
         }
         public bool CheckSuspendTemp(User existingUser)
         {
