@@ -288,26 +288,27 @@ namespace Quizlet_App_Server.Controllers
         public ActionResult<User> ChangePassword(string id, [FromBody] ChangePasswordRequest request)
         {
             // validate user
-            var existingUser = service.FindById(id);
-
-            if (existingUser == null)
-            {
-                return NotFound("User ID not found");
-            }
-            else if (!existingUser.LoginPassword.Equals(request.OldPassword))
+            bool isCorrectPassword = service.VerifyPassword(id, request.OldPassword);
+            if (!isCorrectPassword)
             {
                 return BadRequest("Old password incorrect");
             }
-            else if (existingUser.LoginPassword.Equals(request.NewPassword))
+
+            try
             {
-                return BadRequest("New password is same the current password");
+                var existingUser = service.FindById(id);
+                string hashPassword = service.EncryptPassword(request.NewPassword);
+
+                var update = Builders<User>.Update.Set("login_password", hashPassword);
+                var filter = Builders<User>.Filter.Eq(x => x.Id, id);
+                var result = collection.UpdateOne(filter, update);
+
+                return Ok("Change password successful");
             }
-
-            var update = Builders<User>.Update.Set("login_password", request.NewPassword);
-            var filter = Builders<User>.Filter.Eq(x => x.Id, id);
-            var result = collection.UpdateOne(filter, update);
-
-            return Ok("Change password successful");
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpPut]
         public ActionResult<InfoPersonal> UpdateInfo(string userId, [FromBody] InfoPersonal req)
