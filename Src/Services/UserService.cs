@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Models.Helper;
+using Quizlet_App_Server.Src.Models.OtherFeature.Cipher;
 using Quizlet_App_Server.Utility;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -178,7 +179,7 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
-        public User UpdateUserValue(string userId, string key, object value)
+        public User UpdateUserValue(string userId, string key, object value, bool requireEncrypt = false)
         {
             var update = Builders<User>.Update.Set(key, value);
             var filter = Builders<User>.Filter.Eq(x => x.Id, userId);
@@ -190,7 +191,7 @@ namespace Quizlet_App_Server.Services
 
             return result;
         }
-        public InfoPersonal UpdateInfoUser(string userId, InfoPersonal newInfo)
+        public InfoPersonal UpdateInfoUser(string userId, string aesKey, InfoPersonal newInfo)
         {
             var updateDefinitionList = new List<UpdateDefinition<User>>();
 
@@ -227,7 +228,7 @@ namespace Quizlet_App_Server.Services
             };
 
             var updatedUser = collection.FindOneAndUpdate(filter, combinedUpdate, options);
-            return updatedUser.GetInfo();
+            return updatedUser.GetInfo(aesKey);
         }
         public User UpdateAchievement(string userId, Achievement newAchievement)
         {

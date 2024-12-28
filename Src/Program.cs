@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
+using Quizlet_App_Server.Src.Models.OtherFeature.Cipher;
 using Quizlet_App_Server.Utility;
 using System.Text;
 
@@ -23,6 +24,8 @@ builder.Services.AddSingleton<IMongoClient>(
                             s => new MongoClient(builder.Configuration.GetValue<string>("UserStoreDatabaseSetting:ConnectionString")));
 #endregion
 
+builder.Services.Configure<AesConfig>(builder.Configuration.GetSection("Aes"));
+builder.Services.Configure<RsaConfig>(builder.Configuration.GetSection("Rsa"));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -50,7 +53,6 @@ builder.Services.AddSwaggerGen(options =>
         {jwtSecurityScheme, Array.Empty<string>() }
     });
 });
-
 /*FirebaseApp.Create(new AppOptions()
 {
     Credential = GoogleCredential.FromFile("../Quizlet_App_Server/Config/quizlet-firebase-adminsdk.json")

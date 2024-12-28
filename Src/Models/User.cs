@@ -3,7 +3,10 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Libmongocrypt;
 using Quizlet_App_Server.Src.Models.OtherFeature.Notification;
+using Quizlet_App_Server.Src.Utility;
 using Quizlet_App_Server.Utility;
+using System.Buffers.Text;
+using System.Security.Cryptography;
 
 namespace Quizlet_App_Server.Models
 {
@@ -14,11 +17,11 @@ namespace Quizlet_App_Server.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; } = string.Empty;
         [BsonElement("seq_id")] public int SeqId { get; set; }
-        [BsonElement("login_name")] public string LoginName { get; set; } = string.Empty;
+        [BsonElement("login_name")] public string LoginName { get; set; }
         [BsonElement("login_password")] public string LoginPassword { get; set; } = string.Empty;
         [BsonElement("is_suspend")] public bool IsSuspend { get; set; } = false;
-        [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
-        [BsonElement("email")] public string Email { get; set; } = string.Empty;
+        [BsonElement("user_name")] public string UserName { get; set; }
+        [BsonElement("email")] public string Email { get; set; }
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
         [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = "1999-01-01";
         [BsonElement("time_created")] public long TimeCreated { get; set; } = TimeHelper.UnixTimeNow;
@@ -31,6 +34,7 @@ namespace Quizlet_App_Server.Models
         [BsonElement("achievement")] public Achievement Achievement { get; set; } = new Achievement();
         [BsonElement("setting")] public UserSetting Setting { get; set; } = new UserSetting();
         //[BsonElement("avatar")] public List<int> Avatar { get; set; } = new List<int>();
+        [BsonElement("iv")] public string IV { get; private set; } = string.Empty;
         public void UpdateInfo(InfoPersonal newInfo)
         {
             this.UserName = newInfo.UserName;
@@ -97,12 +101,14 @@ namespace Quizlet_App_Server.Models
             int value = baseValue * multiple;
             this.CollectionStorage.Score += value;
         }
-        public InfoPersonal GetInfo()
+        public InfoPersonal GetInfo(string key)
         {
+            string decryptUserName = AesHelper.DecryptData(this.UserName, key, this.IV);
+            string decryptEmail = AesHelper.DecryptData(this.Email, key, this.IV);
             return new InfoPersonal()
             {
-                UserName = this.UserName,
-                Email = this.Email,
+                UserName = decryptUserName,
+                Email = decryptEmail,
                 //Avatar = this.Avatar,
                 DateOfBirth = this.DateOfBirth,
                 Setting = this.Setting
@@ -119,6 +125,34 @@ namespace Quizlet_App_Server.Models
                 //Avatar = this.Avatar,
                 DateOfBirth = this.DateOfBirth
             };
+        }
+
+        public void EncryptInfo(string key)
+        {
+            this.UserName = AesHelper.EncryptDataToBase64(this.UserName, key, this.IV);
+            this.Email = AesHelper.EncryptDataToBase64(this.Email, key, this.IV);
+        }
+
+        public void GenIV()
+        {
+            using (Aes aes = Aes.Create())
+            {
+                aes.GenerateIV();
+                byte[] iv = aes.IV;
+                this.IV = Convert.ToBase64String(iv);
+            }
+        }
+        public byte[] GetIVByteArr()
+        {
+            return Convert.FromBase64String(IV);
+        }
+        public User ToUserDecrypt(string key)
+        {
+            var info = GetInfo(key);
+            this.UserName = info.UserName;
+            this.Email = info.Email;
+
+            return this;
         }
     }
 
@@ -179,10 +213,10 @@ namespace Quizlet_App_Server.Models
     [System.Serializable]
     public class InfoPersonal
     {
-        [BsonElement("user_name")] public string? UserName { get; set; } = string.Empty;
-        [BsonElement("email")] public string? Email { get; set; } = string.Empty;
+        [BsonElement("user_name")] public string UserName { get; set; } = string.Empty;
+        [BsonElement("email")] public string Email { get; set; } = string.Empty;
         //[BsonElement("avatar")] public string Avatar { get; set; } = string.Empty;
-        [BsonElement("date_of_birth")] public string? DateOfBirth { get; set; } = string.Empty;
+        [BsonElement("date_of_birth")] public string DateOfBirth { get; set; } = string.Empty;
         [BsonElement("setting")] public UserSetting? Setting { get; set; } = new UserSetting();
         //[BsonElement("avatar")] public List<int>? Avatar { get; set; } = new List<int>();
     }
