@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.Utility;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -89,26 +90,53 @@ namespace Quizlet_App_Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Dictionary<string, object>>> Login([FromBody] UserLoginRequest loginRequest)
         {
+            string keyResultType = "result_type";
+            
             // find user
-            var resultAuthenticate = await jwtService.Authenticate(loginRequest);
+            var resultAuthenticate = jwtService.Authenticate(loginRequest, out VerifyLoginResult verifyLoginResult, out User existingUser);
 
-            // login name incorrect
+            // fail
             if(resultAuthenticate == null)
             {
-                return Unauthorized();
+                Dictionary<string, object> resultFail = new Dictionary<string, object>();
+
+                resultFail.Add(keyResultType, verifyLoginResult);
+                resultFail.Add("message", verifyLoginResult.ToString());
+                switch (verifyLoginResult)
+                {
+                    case VerifyLoginResult.None: break;
+                    case VerifyLoginResult.Success: break;
+                    case VerifyLoginResult.InvalidUserName: break;
+                    case VerifyLoginResult.InvalidPassword:
+                        resultFail.Add("try_login_remain", existingUser.TryLoginCount);
+                        resultFail.Add("time_suspend_temp", existingUser.TimeSuspendTemp);
+                        break;
+                    case VerifyLoginResult.SuspendTemp:
+                        resultFail.Add("try_login_remain", existingUser.TryLoginCount);
+                        resultFail.Add("time_suspend_temp", existingUser.TimeSuspendTemp);
+                        break;
+                }
+
+                return Unauthorized(resultFail);
             }
 
-            var existingUser = resultAuthenticate["user"] as User;
+            // success
+            resultAuthenticate.Add(keyResultType, verifyLoginResult);
+            existingUser = resultAuthenticate["user"] as User;
             string accessToken = resultAuthenticate["accessToken"] as string;
 
             if (existingUser.IsSuspend)
             {
                 return BadRequest($"Account has been suspended!");
             }
+            if (!service.CheckSuspendTemp(existingUser))
+            {
+                service.ResetLoginCount(ref existingUser);
+            }
 
             service.CheckVersionAchievement(ref existingUser);
 
-
+            resultAuthenticate["user"] = existingUser;
             return Ok(resultAuthenticate);
         }
         // GET api/<UserController>/5

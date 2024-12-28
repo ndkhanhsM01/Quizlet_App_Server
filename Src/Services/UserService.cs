@@ -322,7 +322,7 @@ namespace Quizlet_App_Server.Services
 
         public void ResetLoginCount(ref User existingUser)
         {
-            UpdateUserValue(existingUser.Id, "try_login_count", VariableConfig.MaxTryLogin);
+            existingUser = UpdateUserValue(existingUser.Id, "try_login_count", VariableConfig.MaxTryLogin);
         }
         public bool CheckSuspendTemp(User existingUser)
         {

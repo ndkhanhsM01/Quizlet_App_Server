@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.Utility;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -21,21 +22,27 @@ namespace Quizlet_App_Server
             this.config = config;
         }
 
-        public async Task<Dictionary<string, object>> Authenticate(UserLoginRequest loginReq)
+        public Dictionary<string, object> Authenticate(UserLoginRequest loginReq, out VerifyLoginResult verifyLoginResult, out User existingUser)
         {
-            if(string.IsNullOrWhiteSpace(loginReq.LoginName) || string.IsNullOrWhiteSpace(loginReq.LoginPassword))
+            existingUser = null;
+            verifyLoginResult = VerifyLoginResult.None;
+
+            if (string.IsNullOrWhiteSpace(loginReq.LoginName) || string.IsNullOrWhiteSpace(loginReq.LoginPassword))
             {
+                verifyLoginResult = VerifyLoginResult.InvalidPassword;
                 return null;
             }
 
-            var existingUser = userService.FindByLoginName(loginReq.LoginName);
+            existingUser = userService.FindByLoginName(loginReq.LoginName);
             if (existingUser == null)
             {
+                verifyLoginResult = VerifyLoginResult.InvalidUserName;
                 return null;
             }
 
             if (userService.CheckSuspendTemp(existingUser))
             {
+                verifyLoginResult = VerifyLoginResult.SuspendTemp;
                 return null;
             }
             else if(existingUser.TryLoginCount <= 0)
@@ -47,6 +54,8 @@ namespace Quizlet_App_Server
             bool isCorrectPassword = userService.VerifyPassword(existingUser.Id, loginReq.LoginPassword);
             if (!isCorrectPassword)
             {
+                existingUser = userService.FindById(existingUser.Id);
+                verifyLoginResult = VerifyLoginResult.InvalidPassword;
                 return null;
             }
 
@@ -78,6 +87,7 @@ namespace Quizlet_App_Server
 
             result.Add("accessToken", accessToken);
             result.Add("user", existingUser);
+            verifyLoginResult = VerifyLoginResult.Success;
 
             return result;
         }
