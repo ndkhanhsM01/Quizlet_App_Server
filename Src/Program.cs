@@ -14,13 +14,14 @@ using Quizlet_App_Server.Src.Models.OtherFeature.Cipher;
 using Quizlet_App_Server.Utility;
 using System.Text;
 
+Console.WriteLine($"Start {VariableConfig.IdPublish}");
 var builder = WebApplication.CreateBuilder(args);
 AppConfigResource appConfigResource = new();
 
 #region get appconfig resource
 HttpClient resourceClient = new HttpClient();
 resourceClient.BaseAddress = new Uri(VariableConfig.ResourceSupplierString);
-var resourceRes = await resourceClient.GetAsync($"/get-data?message={VariableConfig.MessageRequestConfig}");
+var resourceRes = await resourceClient.GetAsync($"/get-data?message={VariableConfig.IdPublish}");
 if (resourceRes.IsSuccessStatusCode)
 {
     var content = resourceRes.Content.ReadAsStringAsync().Result;

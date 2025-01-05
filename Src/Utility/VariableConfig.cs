@@ -5,7 +5,6 @@
         public const int MaxTryLogin = 5;
         public const int BaseScore = 5;
         public const string DatabaseName = "QuizletApp";
-        public const string ConnectionString = "mongodb+srv://Admin_ndkhanhs:5xRWMqf08L88sEZF@ndkhanhsfirst.xdi6ojo.mongodb.net/?retryWrites=true&w=majority";
         public const string Collection_Users = "users";
         public const string Collection_UserSequence = "UserSequence";
         public const string Collection_Configure = "Configure";
@@ -14,6 +13,6 @@
 
         // publish setup
         public const string ResourceSupplierString = "https://bb06-171-224-180-162.ngrok-free.app";
-        public const string MessageRequestConfig = "ndk_v0_0_0";
+        public const string IdPublish = "pub_v0_0_0";
     }
 }
