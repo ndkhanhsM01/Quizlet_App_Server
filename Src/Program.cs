@@ -30,10 +30,13 @@ if (resourceRes.IsSuccessStatusCode)
     AppConfigResource deserializedContent = JsonConvert.DeserializeObject<AppConfigResource>(content);
 
     appConfigResource = deserializedContent;
+    appConfigResource.IsOk = true;
 }
 else
 {
     Console.WriteLine("Error: Can not fetch resource!");
+
+    appConfigResource.SetDefaultConfig(builder);
 }
 #endregion
 
