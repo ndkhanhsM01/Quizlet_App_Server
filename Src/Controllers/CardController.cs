@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.DataSettings;
 using Quizlet_App_Server.Utility;
 using System.Net;
 using User = Quizlet_App_Server.Models.User;
@@ -20,7 +21,7 @@ namespace Quizlet_App_Server.Controllers
     {
         private readonly UserService userService;
         private readonly IWebHostEnvironment webHostEnvironment;
-        public CardController(UserStoreDatabaseSetting setting
+        public CardController(AppConfigResource setting
                             , IMongoClient mongoClient
                             , IConfiguration config
                             , IWebHostEnvironment webHostEnvironment) 

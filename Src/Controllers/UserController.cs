@@ -20,6 +20,7 @@ using Quizlet_App_Server.Services;
 using Quizlet_App_Server.Src.Utility;
 using Microsoft.Extensions.Options;
 using Quizlet_App_Server.Src.Models.OtherFeature.Cipher;
+using Quizlet_App_Server.Src.DataSettings;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -34,21 +35,15 @@ namespace Quizlet_App_Server.Controllers
         private readonly UserService service;
         private readonly RankSystemService rankSystemService;
         private readonly JwtService jwtService;
-        private readonly RsaConfig rsaConfig;
-        private readonly AesConfig aesConfig;
-        public UserController(UserStoreDatabaseSetting setting
+        public UserController(AppConfigResource setting
                             , IMongoClient mongoClient
-                            , IConfiguration config
-                            , IOptions<AesConfig> aesConfig
-                            , IOptions<RsaConfig> rsaConfig) 
+                            , IConfiguration config) 
             : base(setting, mongoClient)
         {
             configuration = config;
             service = new(mongoClient, config);
             rankSystemService = new(mongoClient, config);
-            jwtService = new JwtService(service, config);
-            this.rsaConfig = rsaConfig.Value;
-            this.aesConfig = aesConfig.Value;
+            jwtService = new JwtService(service, config, setting);
         }
         [ApiExplorerSettings(IgnoreApi = true)]
         // GET: api/<UserController>
@@ -145,7 +140,7 @@ namespace Quizlet_App_Server.Controllers
             }
 
             service.CheckVersionAchievement(ref existingUser);
-            existingUser = existingUser.ToUserDecrypt(aesConfig.Key);
+            existingUser = existingUser.ToUserDecrypt(setting.Aes.Key);
             resultAuthenticate["user"] = existingUser;
             return Ok(resultAuthenticate);
         }
@@ -190,7 +185,7 @@ namespace Quizlet_App_Server.Controllers
             // insert new user's information
             newUser.SeqId = service.GetNextID();
             newUser.GenIV();
-            newUser.EncryptInfo(aesConfig.Key);
+            newUser.EncryptInfo(setting.Aes.Key);
             newUser.Achievement = service.GetConfigData<Achievement>("Achievement");
             collection.InsertOne(newUser);
 
@@ -332,7 +327,7 @@ namespace Quizlet_App_Server.Controllers
                 return NotFound("User not found");
             }
 
-            var result = service.UpdateInfoUser(userId, aesConfig.Key, req);
+            var result = service.UpdateInfoUser(userId, setting.Aes.Key, req);
             return new ActionResult<InfoPersonal>(result);
         }
         [HttpDelete] 

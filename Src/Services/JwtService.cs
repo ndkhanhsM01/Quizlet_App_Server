@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.DataSettings;
 using Quizlet_App_Server.Src.Utility;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,11 +16,12 @@ namespace Quizlet_App_Server
     {
         protected readonly UserService userService;
         private readonly IConfiguration config;
-
-        public JwtService(UserService userService, IConfiguration config) 
+        private AppConfigResource setting;
+        public JwtService(UserService userService, IConfiguration config, AppConfigResource setting) 
         { 
             this.userService = userService;
             this.config = config;
+            this.setting = setting;
         }
 
         public Dictionary<string, object> Authenticate(UserLoginRequest loginReq, out VerifyLoginResult verifyLoginResult, out User existingUser)
@@ -62,10 +64,10 @@ namespace Quizlet_App_Server
             Dictionary<string, object> result = new();
 
             // jwt token
-            var issuer = config["Jwt:Issuer"];
-            var audience = config["Jwt:Audience"];
-            var key = config["Jwt:Key"];
-            var tokenValidityMins = config.GetValue<int>("Jwt:TokenValidityMins");
+            var issuer = setting.Jwt.Issuer;
+            var audience = setting.Jwt.Audience;
+            var key = setting.Jwt.Key;
+            var tokenValidityMins = setting.Jwt.TokenValidityMins;
             var tokenExpiryTimeStamp = DateTime.UtcNow.AddMinutes(tokenValidityMins);
 
             var tokenDescriptor = new SecurityTokenDescriptor

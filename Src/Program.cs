@@ -6,26 +6,43 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
+using Quizlet_App_Server.Src.DataSettings;
 using Quizlet_App_Server.Src.Models.OtherFeature.Cipher;
 using Quizlet_App_Server.Utility;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+AppConfigResource appConfigResource = new();
 
-// Add services to the container.
-#region UserStoreDatabaseSetting
-builder.Services.Configure<UserStoreDatabaseSetting>(
-                            builder.Configuration.GetSection(nameof(UserStoreDatabaseSetting)));
-builder.Services.AddSingleton<UserStoreDatabaseSetting>(
-                            sp => sp.GetRequiredService<IOptions<UserStoreDatabaseSetting>>().Value);
-builder.Services.AddSingleton<IMongoClient>(
-                            s => new MongoClient(builder.Configuration.GetValue<string>("UserStoreDatabaseSetting:ConnectionString")));
+#region get appconfig resource
+HttpClient resourceClient = new HttpClient();
+resourceClient.BaseAddress = new Uri(VariableConfig.ResourceSupplierString);
+var resourceRes = await resourceClient.GetAsync($"/get-data?message={VariableConfig.MessageRequestConfig}");
+if (resourceRes.IsSuccessStatusCode)
+{
+    var content = resourceRes.Content.ReadAsStringAsync().Result;
+    Console.WriteLine(content);
+
+    AppConfigResource deserializedContent = JsonConvert.DeserializeObject<AppConfigResource>(content);
+
+    appConfigResource = deserializedContent;
+}
+else
+{
+    Console.WriteLine("Error: Can not fetch resource!");
+}
 #endregion
 
-builder.Services.Configure<AesConfig>(builder.Configuration.GetSection("Aes"));
-builder.Services.Configure<RsaConfig>(builder.Configuration.GetSection("Rsa"));
+// Add services to the container.
+builder.Services.AddSingleton<AppConfigResource>(appConfigResource);
+#region UserStoreDatabaseSetting
+builder.Services.AddSingleton<IMongoClient>(
+                            s => new MongoClient(appConfigResource.UserStoreDatabaseSetting.ConnectionString));
+#endregion
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -53,10 +70,6 @@ builder.Services.AddSwaggerGen(options =>
         {jwtSecurityScheme, Array.Empty<string>() }
     });
 });
-/*FirebaseApp.Create(new AppOptions()
-{
-    Credential = GoogleCredential.FromFile("../Quizlet_App_Server/Config/quizlet-firebase-adminsdk.json")
-});*/
 
 //JWT Authentication
 #region JWT authentication
@@ -72,9 +85,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        ValidIssuer = appConfigResource.Jwt.Issuer,
+        ValidAudience = appConfigResource.Jwt.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appConfigResource.Jwt.Key))
     };
 });
 #endregion

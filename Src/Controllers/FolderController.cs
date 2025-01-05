@@ -5,6 +5,7 @@ using Quizlet_App_Server.Controllers;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.DataSettings;
 
 namespace Quizlet_App_Server.Src.Controllers
 {
@@ -13,7 +14,7 @@ namespace Quizlet_App_Server.Src.Controllers
     public class FolderController : ControllerExtend<User>
     {
         protected readonly UserService userService;
-        public FolderController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config)
+        public FolderController(AppConfigResource setting, IMongoClient mongoClient, IConfiguration config)
             : base(setting, mongoClient)
         {
             userService = new(mongoClient, config);

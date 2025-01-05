@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using Quizlet_App_Server.DataSettings;
 using Quizlet_App_Server.Models;
 using Quizlet_App_Server.Services;
+using Quizlet_App_Server.Src.DataSettings;
 using Quizlet_App_Server.Src.Services;
 using Quizlet_App_Server.Utility;
 
@@ -16,7 +17,7 @@ namespace Quizlet_App_Server.Controllers
     {
         protected readonly UserService userService;
         protected readonly SetPublicService setPublicService;
-        public StudySetController(UserStoreDatabaseSetting setting, IMongoClient mongoClient, IConfiguration config) 
+        public StudySetController(AppConfigResource setting, IMongoClient mongoClient, IConfiguration config) 
             : base(setting, mongoClient)
         {
             userService = new(mongoClient, config);
