@@ -47,7 +47,15 @@ namespace Quizlet_App_Server.Src.Utility
 
         public static string EncryptDataToBase64(string plainText, string key, string iv)
         {
-            return Convert.ToBase64String(EncryptData(plainText, key, iv));
+            try
+            {
+                return Convert.ToBase64String(EncryptData(plainText, key, iv));
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+                return plainText; 
+            }
         }
 
         public static string DecryptData(byte[] encryptedData, byte[] key, byte[] iv)

@@ -103,8 +103,19 @@ namespace Quizlet_App_Server.Models
         }
         public InfoPersonal GetInfo(string key)
         {
-            string decryptUserName = AesHelper.DecryptData(this.UserName, key, this.IV);
-            string decryptEmail = AesHelper.DecryptData(this.Email, key, this.IV);
+            string decryptUserName = UserName;
+            string decryptEmail = Email;
+
+            try
+            {
+                decryptUserName = AesHelper.DecryptData(this.UserName, key, this.IV);
+                decryptEmail = AesHelper.DecryptData(this.Email, key, this.IV);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
             return new InfoPersonal()
             {
                 UserName = decryptUserName,
