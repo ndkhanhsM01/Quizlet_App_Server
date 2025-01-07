@@ -189,7 +189,8 @@ namespace Quizlet_App_Server.Controllers
             newUser.Achievement = service.GetConfigData<Achievement>("Achievement");
             collection.InsertOne(newUser);
 
-            return Ok(newUser);
+            var decryptInfor = newUser.ToUserDecrypt(setting.Aes.Key);
+            return Ok(decryptInfor);
         }
         [HttpPost]
         public ActionResult<StreakRespone> DetectContinueStudy(string userId, long timeDetect)
